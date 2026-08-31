@@ -37,6 +37,7 @@ export const countriesVisited = [
   // France
   { country: 'France', city: 'Paris', lat: 48.8566, lng: 2.3522 },
   { country: 'France', city: 'Val Thorens', lat: 45.2977, lng: 6.5798 },
+  { country: 'France', city: 'Valmeinier', lat: 45.1667, lng: 6.5000 },
 
   // Luxembourg
   { country: 'Luxembourg', city: 'Luxembourg City', lat: 49.6116, lng: 6.1319 },
@@ -147,4 +148,19 @@ export const countriesVisited = [
 
   // Argentina
   { country: 'Argentina', city: 'Buenos Aires', lat: -34.6037, lng: -58.3816 },
+
+  // Mexico
+  { country: 'Mexico', city: 'Cancun', lat: 21.1619, lng: -86.8515 },
+
+  // Greece
+  { country: 'Greece', city: 'Corfu', lat: 39.6243, lng: 19.9217 },
+
+  // Belgium
+  { country: 'Belgium', city: 'Arlon', lat: 49.6833, lng: 5.8167 },
+
+  // Germany
+  { country: 'Germany', city: 'Trier', lat: 49.7596, lng: 6.6441 },
+
+  // Vietnam
+  { country: 'Vietnam', city: 'Da Nang', lat: 16.0544, lng: 108.2022 },
 ];
