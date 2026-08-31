@@ -1,167 +1,22 @@
 import React, { useState } from 'react';
 import TravelGlobe from './TravelGlobe';
+import Photo from './Photo';
 import './globals.css';
+import {
+  stats,
+  roles,
+  education,
+  projects,
+  mediaCredits,
+  achievements,
+  HERO_IMAGE,
+  companyLogoSrc,
+  projectImageSrc,
+  mediaImageSrc,
+} from './siteData';
 
 export default function JackWebsite() {
   const [activeTab, setActiveTab] = useState('overview');
-
-  const stats = [
-    { label: 'Companies', value: '7+', icon: 'ti-briefcase' },
-    { label: 'Finished', value: '100mi', subtitle: 'ultramarathon', icon: 'ti-run' },
-    { label: 'Countries', value: '41+', icon: 'ti-plane' },
-    { label: 'Apps Built', value: '8+', icon: 'ti-code' },
-  ];
-
-  const roles = [
-    {
-      title: 'Risk Analyst Intern',
-      company: 'Morgan Stanley',
-      location: 'Glasgow',
-      dates: 'Jun 2026 - Sep 2026',
-      description: 'Synthesized real-time OSINT data and built agentic AI workflows to model macroeconomic and geopolitical shocks, and investigated trading behavior across global markets',
-      tags: ['AI/ML', 'Finance', 'OSINT'],
-    },
-    {
-      title: 'Software Engineer',
-      company: 'Radsuite',
-      location: 'Dallas',
-      dates: 'Dec 2025 - Apr 2026',
-      description: 'Architected a self-hosted GitLab platform and a cross-LLM collaboration tool; cut environment setup time 80% with reproducible, one-command deploys',
-      tags: ['DevOps', 'LLM', 'Docker'],
-    },
-    {
-      title: 'Software Engineer',
-      company: 'Tenora',
-      location: 'London',
-      dates: 'Sep 2025 - Dec 2025',
-      description: 'Built a 12-month FX Cash-Flow-at-Risk model using Monte Carlo simulation, plus an AI image-to-CSV pipeline that cut data entry time 95%',
-      tags: ['ML', 'Finance', 'Python'],
-    },
-    {
-      title: 'AI & Automation Intern',
-      company: 'LexTrack AI',
-      location: 'New York',
-      dates: 'Jun 2025 - Sep 2025',
-      description: 'Deployed ML models across 10,000+ legal documents, improving extraction speed 60% and cutting contract review time 40%',
-      tags: ['ML', 'Legal', 'Python'],
-    },
-    {
-      title: 'Engineering Intern',
-      company: 'Plantforce Ltd',
-      location: 'Bristol',
-      dates: 'Jun 2024 - Sep 2024',
-      description: 'Designed and prototyped 24 CAD components now deployed 4,000+ times; cut waste 20% via lean/JIT and lifted output 8% through probability analysis',
-      tags: ['CAD', 'Engineering', 'Lean'],
-    },
-  ];
-
-  const education = {
-    school: 'University of Manchester',
-    degree: 'BSc Mathematics with Finance',
-    detail: 'GPA 4.0 · A-Levels: Maths (A*), Economics (A), Business (A)',
-  };
-
-  const projects = [
-    {
-      name: 'Eiliad',
-      tagline: 'QR-based payments & instant refunds for independent retailers',
-      status: 'Active',
-      tech: ['Node.js', 'React', 'Stripe', 'PostgreSQL'],
-      highlight: true,
-    },
-    {
-      name: 'Postinvested',
-      tagline: 'Content platform - grew to 130+ posts, 35% price increase, users across 9 countries',
-      tech: ['Growth', 'Platform'],
-    },
-    {
-      name: 'Financial Algorithm',
-      tagline: 'R-based stock trend model, profitable 9 of 11 months, presented at the London Investors Show',
-      tech: ['R', 'ggplot2', 'Trading'],
-    },
-    {
-      name: 'GOLLM',
-      tagline: 'LLM for gene ontology summarization, built at the Cambridge BioHackathon and featured in a published paper',
-      tech: ['LLM', 'Bioinformatics'],
-    },
-    {
-      name: 'FX Cash-Flow-at-Risk Model',
-      tagline: 'Monte Carlo simulation for currency exposure analysis',
-      tech: ['Python', 'Finance', 'Risk'],
-    },
-  ];
-
-  const mediaCredits = [
-    {
-      title: 'The Witcher',
-      role: 'Actor',
-      platform: 'Netflix',
-      description: 'Season 2',
-    },
-    {
-      title: 'Higher Ground',
-      role: 'Actor',
-      platform: 'Film',
-    },
-    {
-      title: 'Maxton Hall',
-      role: 'Actor',
-      platform: 'Prime Video',
-    },
-    {
-      title: 'The Mandalorian',
-      role: 'Actor',
-      platform: 'Disney+',
-      description: 'Star Wars',
-    },
-    {
-      title: 'John Lewis',
-      role: 'Model',
-      description: '2025 Christmas advert',
-    },
-    {
-      title: 'Tom Ford',
-      role: 'Model',
-      description: 'Campaign',
-    },
-    {
-      title: 'BoohooMAN',
-      role: 'Model',
-      description: '2024 film collection',
-    },
-    {
-      title: 'Manchester City',
-      role: 'Model',
-      description: '2025 collection',
-    },
-  ];
-
-  const achievements = [
-    {
-      title: 'Morgan Stanley Future Generations Scholarship',
-      description: '1 of 25 awarded globally to exceptional undergraduates',
-      year: '2026',
-    },
-    {
-      title: '100-Mile Ultramarathon',
-      description: '27:38 finish time, 3,682m elevation gain',
-      year: '2025',
-    },
-    {
-      title: '17th Place, Umushroom Investment Competition',
-      description: '84% return over 2 months, 1,000+ teams',
-      year: '2024',
-    },
-    {
-      title: 'J.P. Morgan Investment Banking Programme',
-      description: 'Built a DCF model and analyzed capital structure dynamics for an M&A transaction',
-    },
-    {
-      title: 'BDO Voice of the Future Challenge',
-      description: 'Winner',
-      year: '2023',
-    },
-  ];
 
   return (
     <div style={{ background: 'var(--surface-0)', minHeight: '100vh', padding: '0' }}>
@@ -201,36 +56,52 @@ export default function JackWebsite() {
         {activeTab === 'overview' && (
           <>
             <section style={{ marginBottom: '4rem' }}>
-              <h1 style={{ fontSize: '42px', fontWeight: 500, margin: '0 0 1rem 0', color: 'var(--text-primary)' }}>
-                Mathematician. Builder. Performer.
-              </h1>
-              <p style={{ fontSize: '18px', color: 'var(--text-secondary)', margin: '0 0 2rem 0', lineHeight: 1.6, maxWidth: '600px' }}>
-                University of Manchester (Mathematics + Finance). Morgan Stanley Future Generations Scholar. Founder of Eiliad. Actor & model across Netflix, Tom Ford, and major campaigns.
-              </p>
-              <div style={{ display: 'flex', gap: '1rem' }}>
-                <a href="mailto:hello@sailkcaj.com" style={{
-                  padding: '0.75rem 1.5rem',
-                  background: 'var(--fill-accent)',
-                  color: 'var(--on-accent)',
-                  textDecoration: 'none',
-                  borderRadius: 'var(--radius)',
-                  fontSize: '14px',
-                  fontWeight: 500,
-                }}>
-                  Get in touch
-                </a>
-                <a href="/jack-lias-cv.pdf" target="_blank" rel="noopener noreferrer" style={{
-                  padding: '0.75rem 1.5rem',
-                  background: 'var(--surface-2)',
-                  border: '0.5px solid var(--border)',
-                  color: 'var(--text-primary)',
-                  textDecoration: 'none',
-                  borderRadius: 'var(--radius)',
-                  fontSize: '14px',
-                  fontWeight: 500,
-                }}>
-                  View CV
-                </a>
+              <div style={{ display: 'flex', gap: '2rem', alignItems: 'center', flexWrap: 'wrap' }}>
+                <Photo
+                  src={HERO_IMAGE}
+                  alt="Jack"
+                  style={{
+                    width: '140px',
+                    height: '140px',
+                    borderRadius: '50%',
+                    objectFit: 'cover',
+                    border: '0.5px solid var(--border)',
+                    flexShrink: 0,
+                  }}
+                />
+                <div>
+                  <h1 style={{ fontSize: '42px', fontWeight: 500, margin: '0 0 1rem 0', color: 'var(--text-primary)' }}>
+                    Mathematician. Builder. Performer.
+                  </h1>
+                  <p style={{ fontSize: '18px', color: 'var(--text-secondary)', margin: '0 0 2rem 0', lineHeight: 1.6, maxWidth: '600px' }}>
+                    University of Manchester (Mathematics + Finance). Morgan Stanley Future Generations Scholar. Founder of Eiliad. Actor & model across Netflix, Tom Ford, and major campaigns.
+                  </p>
+                  <div style={{ display: 'flex', gap: '1rem' }}>
+                    <a href="mailto:hello@sailkcaj.com" style={{
+                      padding: '0.75rem 1.5rem',
+                      background: 'var(--fill-accent)',
+                      color: 'var(--on-accent)',
+                      textDecoration: 'none',
+                      borderRadius: 'var(--radius)',
+                      fontSize: '14px',
+                      fontWeight: 500,
+                    }}>
+                      Get in touch
+                    </a>
+                    <a href="/jack-lias-cv.pdf" target="_blank" rel="noopener noreferrer" style={{
+                      padding: '0.75rem 1.5rem',
+                      background: 'var(--surface-2)',
+                      border: '0.5px solid var(--border)',
+                      color: 'var(--text-primary)',
+                      textDecoration: 'none',
+                      borderRadius: 'var(--radius)',
+                      fontSize: '14px',
+                      fontWeight: 500,
+                    }}>
+                      View CV
+                    </a>
+                  </div>
+                </div>
               </div>
             </section>
 
@@ -293,11 +164,25 @@ export default function JackWebsite() {
                   padding: '1.5rem',
                 }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '0.75rem' }}>
-                    <div>
-                      <h3 style={{ fontSize: '16px', fontWeight: 500, margin: '0 0 0.25rem 0' }}>{role.title}</h3>
-                      <p style={{ fontSize: '14px', color: 'var(--text-secondary)', margin: 0 }}>
-                        {role.company} {role.location && `• ${role.location}`}
-                      </p>
+                    <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
+                      <Photo
+                        src={companyLogoSrc(role.company)}
+                        alt={`${role.company} logo`}
+                        style={{
+                          width: '36px',
+                          height: '36px',
+                          borderRadius: '8px',
+                          objectFit: 'cover',
+                          border: '0.5px solid var(--border)',
+                          flexShrink: 0,
+                        }}
+                      />
+                      <div>
+                        <h3 style={{ fontSize: '16px', fontWeight: 500, margin: '0 0 0.25rem 0' }}>{role.title}</h3>
+                        <p style={{ fontSize: '14px', color: 'var(--text-secondary)', margin: 0 }}>
+                          {role.company} {role.location && `• ${role.location}`}
+                        </p>
+                      </div>
                     </div>
                     {role.dates && <span style={{ fontSize: '13px', color: 'var(--text-muted)' }}>{role.dates}</span>}
                   </div>
@@ -383,6 +268,19 @@ export default function JackWebsite() {
                       Active
                     </span>
                   )}
+                  <Photo
+                    src={projectImageSrc(proj.name)}
+                    alt={`${proj.name} screenshot`}
+                    style={{
+                      display: 'block',
+                      width: 'calc(100% + 3rem)',
+                      height: '140px',
+                      objectFit: 'cover',
+                      margin: '-1.5rem -1.5rem 1rem -1.5rem',
+                      borderTopLeftRadius: '11px',
+                      borderTopRightRadius: '11px',
+                    }}
+                  />
                   <h3 style={{ fontSize: '16px', fontWeight: 500, margin: '0 0 0.5rem 0', marginTop: proj.highlight ? '0.5rem' : 0 }}>{proj.name}</h3>
                   <p style={{ fontSize: '13px', color: proj.highlight ? 'var(--text-accent)' : 'var(--text-secondary)', margin: '0 0 1rem 0', lineHeight: 1.5 }}>{proj.tagline}</p>
                   <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
@@ -416,6 +314,19 @@ export default function JackWebsite() {
                   borderRadius: '12px',
                   padding: '1.5rem',
                 }}>
+                  <Photo
+                    src={mediaImageSrc(media.title)}
+                    alt={media.title}
+                    style={{
+                      display: 'block',
+                      width: 'calc(100% + 3rem)',
+                      height: '160px',
+                      objectFit: 'cover',
+                      margin: '-1.5rem -1.5rem 1rem -1.5rem',
+                      borderTopLeftRadius: '11px',
+                      borderTopRightRadius: '11px',
+                    }}
+                  />
                   <h3 style={{ fontSize: '16px', fontWeight: 500, margin: '0 0 0.5rem 0' }}>{media.title}</h3>
                   <p style={{ fontSize: '13px', color: 'var(--text-secondary)', margin: '0 0 0.5rem 0' }}>
                     <i className="ti ti-star" style={{ marginRight: '0.25rem' }} aria-hidden="true"></i>

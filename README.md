@@ -22,9 +22,32 @@ Opens at http://localhost:4173.
 
 ## Editing content
 
-- `src/App.jsx` — everything except the globe: stats, roles, projects, media credits. Each section is a plain array near the top of the file.
+- `src/siteData.js` — stats, roles, projects, media credits, achievements, education. Each section is a plain array near the top of the file.
 - `src/TravelGlobe.jsx` — the `countriesVisited` array near the top. Format: `{ country, city, lat, lng, note }` (`note` is optional).
 - `src/globals.css` — colors, both light and dark mode.
+- `src/App.jsx` — layout only; imports its content from `siteData.js` instead of defining it inline.
+
+Add a role/project/media credit/country and it automatically gets its own photo box in `npm run photos` below — nothing else to touch.
+
+## Adding photos
+
+```
+npm run photos
+```
+
+Opens a local tool at `localhost:5050` — never touches the live site directly. It shows every photo slot on the site (hero shot, company logos, project screenshots, acting/modeling credits, travel-globe country photos) as a box:
+
+- Drag a photo onto a box, or click it to browse. HEIC (iPhone photos), PNG, JPEG, whatever — it's converted to a web-ready JPEG and auto-resized if it's oversized.
+- The ⇄ button on a filled box moves that photo to a different slot (swaps if the target already has one).
+- The ✕ button removes a photo (click twice to confirm).
+
+It writes straight into `public/images/...` under the exact filename the site expects — no manual renaming. Once you're happy with what's there:
+
+```
+git add . && git commit -m "Add photos" && git push
+```
+
+A slot with no photo just doesn't render anything on the site — nothing looks broken either way.
 
 ## Deploy to Render
 

@@ -1,9 +1,7 @@
 import React, { useRef, useEffect, useState, useCallback } from 'react';
 import Globe from 'react-globe.gl';
 import { countriesVisited } from './data/countries';
-
-const slugify = (str) =>
-  str.toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+import { slugify } from './slugify';
 
 const ACCENT = '#5EB1F0'; // light blue — change this one line to re-theme the globe
 const DEFAULT_ALTITUDE = 2.1;
