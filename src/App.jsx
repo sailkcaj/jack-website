@@ -6,40 +6,60 @@ export default function JackWebsite() {
   const [activeTab, setActiveTab] = useState('overview');
 
   const stats = [
-    { label: 'Companies', value: '8+', icon: 'ti-briefcase' },
+    { label: 'Companies', value: '7+', icon: 'ti-briefcase' },
     { label: 'Finished', value: '100mi', subtitle: 'ultramarathon', icon: 'ti-run' },
-    { label: 'Countries', value: '12+', icon: 'ti-plane' },
-    { label: 'Apps Built', value: '4+', icon: 'ti-code' },
+    { label: 'Countries', value: '41+', icon: 'ti-plane' },
+    { label: 'Apps Built', value: '8+', icon: 'ti-code' },
   ];
 
   const roles = [
     {
-      title: 'Risk Analyst',
+      title: 'Risk Analyst Intern',
       company: 'Morgan Stanley',
       location: 'Glasgow',
-      dates: '2026',
-      description: 'Built agentic AI workflows for macroeconomic & geopolitical risk modeling',
-      tags: ['AI/ML', 'Finance', 'Python'],
+      dates: 'Jun 2026 - Sep 2026',
+      description: 'Synthesized real-time OSINT data and built agentic AI workflows to model macroeconomic and geopolitical shocks, and investigated trading behavior across global markets',
+      tags: ['AI/ML', 'Finance', 'OSINT'],
+    },
+    {
+      title: 'Software Engineer',
+      company: 'Radsuite',
+      location: 'Dallas',
+      dates: 'Dec 2025 - Apr 2026',
+      description: 'Architected a self-hosted GitLab platform and a cross-LLM collaboration tool; cut environment setup time 80% with reproducible, one-command deploys',
+      tags: ['DevOps', 'LLM', 'Docker'],
     },
     {
       title: 'Software Engineer',
       company: 'Tenora',
-      description: 'Developed Monte Carlo FX Cash-Flow-at-Risk model, 95% data reduction via AI',
+      location: 'London',
+      dates: 'Sep 2025 - Dec 2025',
+      description: 'Built a 12-month FX Cash-Flow-at-Risk model using Monte Carlo simulation, plus an AI image-to-CSV pipeline that cut data entry time 95%',
       tags: ['ML', 'Finance', 'Python'],
     },
     {
-      title: 'ML Engineer',
+      title: 'AI & Automation Intern',
       company: 'LexTrack AI',
-      description: 'Legal document processing, 60% speed improvement on contract review',
+      location: 'New York',
+      dates: 'Jun 2025 - Sep 2025',
+      description: 'Deployed ML models across 10,000+ legal documents, improving extraction speed 60% and cutting contract review time 40%',
       tags: ['ML', 'Legal', 'Python'],
     },
     {
-      title: 'Investment Banking Analyst',
-      company: 'J.P. Morgan',
-      description: 'LBO modeling, DCF, three-statement integration, M&A analysis',
-      tags: ['Finance', 'Modeling', 'Excel'],
+      title: 'Engineering Intern',
+      company: 'Plantforce Ltd',
+      location: 'Bristol',
+      dates: 'Jun 2024 - Sep 2024',
+      description: 'Designed and prototyped 24 CAD components now deployed 4,000+ times; cut waste 20% via lean/JIT and lifted output 8% through probability analysis',
+      tags: ['CAD', 'Engineering', 'Lean'],
     },
   ];
+
+  const education = {
+    school: 'University of Manchester',
+    degree: 'BSc Mathematics with Finance',
+    detail: 'GPA 4.0 · A-Levels: Maths (A*), Economics (A), Business (A)',
+  };
 
   const projects = [
     {
@@ -51,12 +71,17 @@ export default function JackWebsite() {
     },
     {
       name: 'Postinvested',
-      tagline: 'Payments platform for independent merchants',
-      tech: ['Finance', 'Payments'],
+      tagline: 'Content platform - grew to 130+ posts, 35% price increase, users across 9 countries',
+      tech: ['Growth', 'Platform'],
+    },
+    {
+      name: 'Financial Algorithm',
+      tagline: 'R-based stock trend model, profitable 9 of 11 months, presented at the London Investors Show',
+      tech: ['R', 'ggplot2', 'Trading'],
     },
     {
       name: 'GOLLM',
-      tagline: 'LLM application for gene ontology summarization (published)',
+      tagline: 'LLM for gene ontology summarization, built at the Cambridge BioHackathon and featured in a published paper',
       tech: ['LLM', 'Bioinformatics'],
     },
     {
@@ -74,10 +99,25 @@ export default function JackWebsite() {
       description: 'Season 2',
     },
     {
+      title: 'Higher Ground',
+      role: 'Actor',
+      platform: 'Film',
+    },
+    {
       title: 'Maxton Hall',
-      role: 'Lead',
-      platform: 'Netflix / German Series',
-      description: 'Romantic comedy',
+      role: 'Actor',
+      platform: 'Prime Video',
+    },
+    {
+      title: 'The Mandalorian',
+      role: 'Actor',
+      platform: 'Disney+',
+      description: 'Star Wars',
+    },
+    {
+      title: 'John Lewis',
+      role: 'Model',
+      description: '2025 Christmas advert',
     },
     {
       title: 'Tom Ford',
@@ -87,12 +127,12 @@ export default function JackWebsite() {
     {
       title: 'BoohooMAN',
       role: 'Model',
-      description: 'Campaign',
+      description: '2024 film collection',
     },
     {
-      title: 'The Witcher',
+      title: 'Manchester City',
       role: 'Model',
-      description: 'Credits',
+      description: '2025 collection',
     },
   ];
 
@@ -104,13 +144,17 @@ export default function JackWebsite() {
     },
     {
       title: '100-Mile Ultramarathon',
-      description: 'Completed 27:38 finish time',
+      description: '27:38 finish time, 3,682m elevation gain',
       year: '2025',
     },
     {
       title: '17th Place, Umushroom Investment Competition',
-      description: '84% return portfolio, 1,000+ teams',
+      description: '84% return over 2 months, 1,000+ teams',
       year: '2024',
+    },
+    {
+      title: 'J.P. Morgan Investment Banking Programme',
+      description: 'Built a DCF model and analyzed capital structure dynamics for an M&A transaction',
     },
     {
       title: 'BDO Voice of the Future Challenge',
@@ -175,7 +219,7 @@ export default function JackWebsite() {
                 }}>
                   Get in touch
                 </a>
-                <a href="#" style={{
+                <a href="/jack-lias-cv.pdf" target="_blank" rel="noopener noreferrer" style={{
                   padding: '0.75rem 1.5rem',
                   background: 'var(--surface-2)',
                   border: '0.5px solid var(--border)',
@@ -294,6 +338,19 @@ export default function JackWebsite() {
                   <span style={{ fontSize: '12px', color: 'var(--text-muted)', whiteSpace: 'nowrap', marginLeft: '1rem' }}>{ach.year}</span>
                 </div>
               ))}
+            </div>
+
+            {/* Education Subsection */}
+            <h3 style={{ fontSize: '18px', fontWeight: 500, marginTop: '3rem', marginBottom: '1.5rem' }}>Education</h3>
+            <div style={{
+              background: 'var(--surface-2)',
+              border: '0.5px solid var(--border)',
+              borderRadius: '12px',
+              padding: '1.5rem',
+            }}>
+              <p style={{ fontSize: '14px', fontWeight: 500, margin: '0 0 0.25rem 0' }}>{education.school}</p>
+              <p style={{ fontSize: '13px', color: 'var(--text-secondary)', margin: '0 0 0.5rem 0' }}>{education.degree}</p>
+              <p style={{ fontSize: '13px', color: 'var(--text-muted)', margin: 0 }}>{education.detail}</p>
             </div>
           </section>
         )}
