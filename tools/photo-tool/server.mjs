@@ -12,7 +12,7 @@ import { fileURLToPath } from 'node:url';
 import { exec } from 'node:child_process';
 
 import { slugify } from '../../src/slugify.js';
-import { roles, projects, mediaCredits } from '../../src/siteData.js';
+import { roles, projects, mediaCredits, achievements } from '../../src/siteData.js';
 import { countriesVisited } from '../../src/data/countries.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -57,6 +57,15 @@ function buildSlots() {
       category: 'Acting & modeling',
       label: `${m.title} — ${m.role}`,
       relPath: `media/${slugify(m.title)}.jpg`,
+    });
+  }
+
+  for (const a of achievements) {
+    slots.push({
+      id: `achievement-${slugify(a.title)}`,
+      category: 'Achievements',
+      label: a.title,
+      relPath: `achievements/${slugify(a.title)}.jpg`,
     });
   }
 

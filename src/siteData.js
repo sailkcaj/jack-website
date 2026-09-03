@@ -156,3 +156,4 @@ export const HERO_IMAGE = '/images/hero.jpg';
 export const companyLogoSrc = (company) => `/images/companies/${slugify(company)}.jpg`;
 export const projectImageSrc = (name) => `/images/projects/${slugify(name)}.jpg`;
 export const mediaImageSrc = (title) => `/images/media/${slugify(title)}.jpg`;
+export const achievementImageSrc = (title) => `/images/achievements/${slugify(title)}.jpg`;
