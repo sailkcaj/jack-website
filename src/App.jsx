@@ -30,7 +30,7 @@ export default function JackWebsite() {
         zIndex: 100,
       }}>
         <div style={{ maxWidth: '1200px', margin: '0 auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <div style={{ fontSize: '20px', fontWeight: 500 }}>Jack</div>
+          <div style={{ fontSize: '20px', fontWeight: 500 }}>Jack Lias</div>
           <nav style={{ display: 'flex', gap: '2rem', fontSize: '14px' }}>
             <button onClick={() => setActiveTab('overview')} style={{ background: 'none', border: 'none', cursor: 'pointer', color: activeTab === 'overview' ? 'var(--text-primary)' : 'var(--text-secondary)', fontWeight: activeTab === 'overview' ? 500 : 400 }}>
               Overview
@@ -369,7 +369,7 @@ export default function JackWebsite() {
         color: 'var(--text-secondary)',
         marginTop: '4rem',
       }}>
-        <p style={{ margin: 0 }}>Built by Jack • sailkcaj.com</p>
+        <p style={{ margin: 0 }}>Built by Jack Lias • sailkcaj.com</p>
       </footer>
     </div>
   );
