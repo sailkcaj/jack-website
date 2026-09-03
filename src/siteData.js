@@ -51,6 +51,22 @@ export const roles = [
     description: 'Designed and prototyped 24 CAD components now deployed 4,000+ times; cut waste 20% via lean/JIT and lifted output 8% through probability analysis',
     tags: ['CAD', 'Engineering', 'Lean'],
   },
+  {
+    title: 'Cashier',
+    company: "McDonald's",
+    location: 'Cardiff',
+    dates: '2021',
+    description: 'Handled front-counter and drive-thru service, managing orders, payments, and customer queries in a fast-paced environment',
+    tags: ['Customer Service', 'Retail'],
+  },
+  {
+    title: 'Labourer',
+    company: 'Grab It',
+    location: 'Cardiff',
+    dates: '2019 - 2021',
+    description: 'General labouring and site support, assisting with day-to-day manual work and operations',
+    tags: ['Labour', 'Operations'],
+  },
 ];
 
 export const education = {
