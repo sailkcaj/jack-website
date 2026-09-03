@@ -133,17 +133,25 @@ export default function JackWebsite() {
             <section>
               <h2 style={{ fontSize: '18px', fontWeight: 500, marginBottom: '1rem' }}>Connect</h2>
               <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
-                {['LinkedIn', 'GitHub', 'Email', 'Spotify'].map((link, i) => (
-                  <a key={i} href="#" style={{
-                    padding: '0.5rem 1rem',
-                    background: 'var(--surface-2)',
-                    border: '0.5px solid var(--border)',
-                    borderRadius: 'var(--radius)',
-                    fontSize: '14px',
-                    color: 'var(--text-primary)',
-                    textDecoration: 'none',
-                  }}>
-                    {link}
+                {[
+                  { label: 'LinkedIn', href: 'https://www.linkedin.com/in/jack-lias-b0521b249/', external: true },
+                  { label: 'GitHub', href: 'https://github.com/sailkcaj', external: true },
+                  { label: 'Email', href: 'mailto:hello@sailkcaj.com', external: false },
+                ].map((link, i) => (
+                  <a
+                    key={i}
+                    href={link.href}
+                    {...(link.external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
+                    style={{
+                      padding: '0.5rem 1rem',
+                      background: 'var(--surface-2)',
+                      border: '0.5px solid var(--border)',
+                      borderRadius: 'var(--radius)',
+                      fontSize: '14px',
+                      color: 'var(--text-primary)',
+                      textDecoration: 'none',
+                    }}>
+                    {link.label}
                   </a>
                 ))}
               </div>
