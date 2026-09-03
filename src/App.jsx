@@ -38,6 +38,9 @@ export default function JackWebsite() {
             <button onClick={() => setActiveTab('work')} style={{ background: 'none', border: 'none', cursor: 'pointer', color: activeTab === 'work' ? 'var(--text-primary)' : 'var(--text-secondary)', fontWeight: activeTab === 'work' ? 500 : 400 }}>
               Work
             </button>
+            <button onClick={() => setActiveTab('achievements')} style={{ background: 'none', border: 'none', cursor: 'pointer', color: activeTab === 'achievements' ? 'var(--text-primary)' : 'var(--text-secondary)', fontWeight: activeTab === 'achievements' ? 500 : 400 }}>
+              Achievements
+            </button>
             <button onClick={() => setActiveTab('projects')} style={{ background: 'none', border: 'none', cursor: 'pointer', color: activeTab === 'projects' ? 'var(--text-primary)' : 'var(--text-secondary)', fontWeight: activeTab === 'projects' ? 500 : 400 }}>
               Projects
             </button>
@@ -212,8 +215,25 @@ export default function JackWebsite() {
               ))}
             </div>
 
-            {/* Achievements Subsection */}
-            <h3 style={{ fontSize: '18px', fontWeight: 500, marginTop: '3rem', marginBottom: '1.5rem' }}>Key Achievements</h3>
+            {/* Education Subsection */}
+            <h3 style={{ fontSize: '18px', fontWeight: 500, marginTop: '3rem', marginBottom: '1.5rem' }}>Education</h3>
+            <div style={{
+              background: 'var(--surface-2)',
+              border: '0.5px solid var(--border)',
+              borderRadius: '12px',
+              padding: '1.5rem',
+            }}>
+              <p style={{ fontSize: '14px', fontWeight: 500, margin: '0 0 0.25rem 0' }}>{education.school}</p>
+              <p style={{ fontSize: '13px', color: 'var(--text-secondary)', margin: '0 0 0.5rem 0' }}>{education.degree}</p>
+              <p style={{ fontSize: '13px', color: 'var(--text-muted)', margin: 0 }}>{education.detail}</p>
+            </div>
+          </section>
+        )}
+
+        {/* Achievements Section */}
+        {activeTab === 'achievements' && (
+          <section>
+            <h2 style={{ fontSize: '24px', fontWeight: 500, marginBottom: '2rem' }}>Achievements</h2>
             <div style={{ display: 'grid', gap: '1rem' }}>
               {achievements.map((ach, i) => (
                 <div key={i} style={{
@@ -231,19 +251,6 @@ export default function JackWebsite() {
                   <span style={{ fontSize: '12px', color: 'var(--text-muted)', whiteSpace: 'nowrap', marginLeft: '1rem' }}>{ach.year}</span>
                 </div>
               ))}
-            </div>
-
-            {/* Education Subsection */}
-            <h3 style={{ fontSize: '18px', fontWeight: 500, marginTop: '3rem', marginBottom: '1.5rem' }}>Education</h3>
-            <div style={{
-              background: 'var(--surface-2)',
-              border: '0.5px solid var(--border)',
-              borderRadius: '12px',
-              padding: '1.5rem',
-            }}>
-              <p style={{ fontSize: '14px', fontWeight: 500, margin: '0 0 0.25rem 0' }}>{education.school}</p>
-              <p style={{ fontSize: '13px', color: 'var(--text-secondary)', margin: '0 0 0.5rem 0' }}>{education.degree}</p>
-              <p style={{ fontSize: '13px', color: 'var(--text-muted)', margin: 0 }}>{education.detail}</p>
             </div>
           </section>
         )}
