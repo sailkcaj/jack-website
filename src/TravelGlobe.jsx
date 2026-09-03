@@ -10,6 +10,27 @@ const RESUME_DELAY = 4000;
 
 const isSamePoint = (a, b) => !!a && !!b && a.country === b.country && a.city === b.city;
 
+// ISO 3166-1 alpha-2 codes for every country name used in data/countries.js,
+// turned into a flag emoji for the tooltip badge. Add a line here whenever a
+// new country is added there.
+const COUNTRY_CODES = {
+  China: 'CN', Mongolia: 'MN', Turkey: 'TR', 'United Kingdom': 'GB', France: 'FR',
+  Luxembourg: 'LU', Italy: 'IT', Croatia: 'HR', Albania: 'AL', Bulgaria: 'BG',
+  Romania: 'RO', Serbia: 'RS', Hungary: 'HU', Czechia: 'CZ', Denmark: 'DK',
+  Poland: 'PL', Spain: 'ES', Portugal: 'PT', Morocco: 'MA', UAE: 'AE',
+  Oman: 'OM', India: 'IN', Thailand: 'TH', 'Vatican City': 'VA', Bahrain: 'BH',
+  Malaysia: 'MY', Singapore: 'SG', 'United States': 'US', Jamaica: 'JM', Panama: 'PA',
+  Bolivia: 'BO', Paraguay: 'PY', Brazil: 'BR', Uruguay: 'UY', Argentina: 'AR',
+  Mexico: 'MX', Greece: 'GR', Belgium: 'BE', Germany: 'DE', Vietnam: 'VN',
+};
+
+function flagEmoji(isoCode) {
+  if (!isoCode) return '';
+  return isoCode
+    .toUpperCase()
+    .replace(/./g, (char) => String.fromCodePoint(127397 + char.charCodeAt(0)));
+}
+
 // The hover tooltip is rendered by the globe library from a raw HTML string,
 // not by React — so image fallback (jpg -> png -> hide) has to be done with
 // a plain inline onerror handler rather than React state.
@@ -17,8 +38,10 @@ function pointTooltip(d) {
   const slug = slugify(d.country);
   const jpg = `/images/countries/${slug}.jpg`;
   const png = `/images/countries/${slug}.png`;
+  const flag = flagEmoji(COUNTRY_CODES[d.country]);
   return `
     <div style="
+      position: relative;
       background: #1B1E27;
       border: 1px solid rgba(255,255,255,0.14);
       border-radius: 10px;
@@ -27,6 +50,22 @@ function pointTooltip(d) {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
       box-shadow: 0 6px 20px rgba(0,0,0,0.45);
     ">
+      ${flag ? `
+      <div style="
+        position: absolute;
+        top: 6px;
+        right: 6px;
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        background: rgba(255,255,255,0.92);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 13px;
+        line-height: 1;
+        box-shadow: 0 1px 4px rgba(0,0,0,0.4);
+      ">${flag}</div>` : ''}
       <img
         src="${jpg}"
         onerror="this.onerror=function(){this.style.display='none';};this.src='${png}';"
