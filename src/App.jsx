@@ -77,7 +77,7 @@ export default function JackWebsite() {
                     University of Manchester (Mathematics + Finance). Morgan Stanley Future Generations Scholar. Founder of Eiliad. Actor & model across Netflix, Tom Ford, and major campaigns.
                   </p>
                   <div style={{ display: 'flex', gap: '1rem' }}>
-                    <a href="mailto:hello@sailkcaj.com" style={{
+                    <a href="mailto:liasjack1@gmail.com" style={{
                       padding: '0.75rem 1.5rem',
                       background: 'var(--fill-accent)',
                       color: 'var(--on-accent)',
@@ -136,7 +136,7 @@ export default function JackWebsite() {
                 {[
                   { label: 'LinkedIn', href: 'https://www.linkedin.com/in/jack-lias-b0521b249/', external: true },
                   { label: 'GitHub', href: 'https://github.com/sailkcaj', external: true },
-                  { label: 'Email', href: 'mailto:hello@sailkcaj.com', external: false },
+                  { label: 'Email', href: 'mailto:liasjack1@gmail.com', external: false },
                 ].map((link, i) => (
                   <a
                     key={i}
