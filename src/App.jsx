@@ -22,7 +22,7 @@ export default function JackWebsite() {
     <div style={{ background: 'var(--surface-0)', minHeight: '100vh', padding: '0' }}>
       {/* Header */}
       <header style={{
-        background: 'var(--surface-2)',
+        background: 'var(--header-bg)',
         borderBottom: '0.5px solid var(--border)',
         padding: '1.5rem 2rem',
         position: 'sticky',

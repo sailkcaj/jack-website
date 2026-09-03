@@ -1,7 +1,8 @@
 :root {
-  --surface-0: #F5F6F8;
+  --surface-0: #FFFFFF;
   --surface-1: #ECEEF1;
   --surface-2: #FFFFFF;
+  --header-bg: #DBEEFB;
   --text-primary: #171A20;
   --text-secondary: #565C68;
   --text-muted: #8A8F99;
@@ -15,23 +16,7 @@
   --radius: 8px;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --surface-0: #21242E;
-    --surface-1: #2A2E3A;
-    --surface-2: #333747;
-    --text-primary: #EEEFF2;
-    --text-secondary: #A3A8B4;
-    --text-muted: #6E7380;
-    --border: #3E4353;
-    --border-strong: #4D5364;
-    --border-accent: #5EB1F0;
-    --fill-accent: #5EB1F0;
-    --on-accent: #0B1E2E;
-    --bg-accent: #1B3A54;
-    --text-accent: #BFE1FA;
-  }
-}
+/* Site always uses this light theme — no dark mode switch */
 
 * {
   box-sizing: border-box;
