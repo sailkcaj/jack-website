@@ -110,7 +110,7 @@ export default function TravelGlobe() {
           width: '100%',
           borderRadius: '12px',
           overflow: 'hidden',
-          background: '#161923',
+          background: 'var(--surface-2)',
           border: '0.5px solid var(--border)',
         }}
       >
