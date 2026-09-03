@@ -44,6 +44,13 @@ export const roles = [
     tags: ['ML', 'Legal', 'Python'],
   },
   {
+    title: 'Real Estate',
+    company: 'GMC Properties',
+    dates: 'Jan 2025 - Mar 2025',
+    description: 'Supported property listings, viewings, and client coordination across residential and commercial real estate',
+    tags: ['Real Estate'],
+  },
+  {
     title: 'Engineering Intern',
     company: 'Plantforce Ltd',
     location: 'Bristol',
