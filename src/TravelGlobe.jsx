@@ -111,7 +111,7 @@ export default function TravelGlobe() {
           borderRadius: '12px',
           overflow: 'hidden',
           background: 'var(--surface-2)',
-          border: '0.5px solid var(--border)',
+          border: 'none',
         }}
       >
         <Globe
