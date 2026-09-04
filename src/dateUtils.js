@@ -85,3 +85,13 @@ export function hourLabel(hour) {
   if (hour === 12) return '12p';
   return hour < 12 ? `${hour}a` : `${hour - 12}p`;
 }
+
+// Label for a 30-minute slot index (0-47): slot 0 = 12:00a, 1 = 12:30a, ...
+// 47 = 11:30p.
+export function slotLabel(slot) {
+  const hour = Math.floor(slot / 2);
+  const half = slot % 2 === 1;
+  const h12 = hour === 0 ? 12 : hour > 12 ? hour - 12 : hour;
+  const suffix = hour < 12 ? 'a' : 'p';
+  return half ? `${h12}:30${suffix}` : `${h12}${suffix}`;
+}

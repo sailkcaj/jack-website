@@ -4,7 +4,7 @@ import { TIME_CATEGORIES, OTHER_CATEGORY, ALL_CATEGORIES, categoryById } from '.
 import {
   dateKey, addDays, startOfWeek, weekDays, startOfMonth, daysInMonth,
   monthGridDays, WEEKDAY_LABELS, MONTH_LABELS, formatLongDate, formatShortDate,
-  hourLabel,
+  slotLabel,
 } from './dateUtils';
 
 // Hairline ring around color fills — several of the categorical colors
@@ -12,7 +12,7 @@ import {
 // dark-at-10%-opacity ring keeps every segment readable as its own shape
 // rather than blurring into the surface or its neighbor.
 const RING = '1px solid rgba(11,11,11,0.10)';
-const GAP = 2; // px — surface gap between touching hour segments
+const GAP = 2; // px — surface gap between touching half-hour segments
 
 function todayDate() {
   const d = new Date();
@@ -96,9 +96,9 @@ function BrushPalette({ activeBrush, onPick }) {
 }
 
 // ---------------------------------------------------------------------------
-// One day as 24 equal hour segments. Interactive strips accept click/drag
-// painting with the active brush; read-only strips (week/month) are just
-// hover-labeled.
+// One day as 48 equal half-hour segments. Interactive strips accept
+// click/drag painting with the active brush; read-only strips (week/month)
+// are just hover-labeled.
 // ---------------------------------------------------------------------------
 function HourStrip({ hours, height, interactive, onPaint, showLabels, brush }) {
   const paintingRef = useRef(false);
@@ -111,24 +111,24 @@ function HourStrip({ hours, height, interactive, onPaint, showLabels, brush }) {
     return () => window.removeEventListener('pointerup', stop);
   }, [interactive]);
 
-  const beginPaint = (hour, currentValue) => {
+  const beginPaint = (slot, currentValue) => {
     const value = currentValue === brush ? null : brush;
     paintValueRef.current = value;
     paintingRef.current = true;
-    onPaint(hour, value);
+    onPaint(slot, value);
   };
 
   return (
     <div>
       <div style={{ display: 'flex', gap: `${GAP}px`, height: `${height}px`, borderRadius: '8px', overflow: 'hidden' }}>
-        {hours.map((catId, hour) => {
+        {hours.map((catId, slot) => {
           const cat = categoryById(catId);
           return (
             <div
-              key={hour}
-              title={`${hourLabel(hour)}–${hourLabel((hour + 1) % 24)}: ${cat ? cat.label : 'Not logged'}`}
-              onPointerDown={interactive ? (e) => { e.preventDefault(); beginPaint(hour, catId); } : undefined}
-              onPointerEnter={interactive ? () => { if (paintingRef.current) onPaint(hour, paintValueRef.current); } : undefined}
+              key={slot}
+              title={`${slotLabel(slot)}–${slotLabel((slot + 1) % 48)}: ${cat ? cat.label : 'Not logged'}`}
+              onPointerDown={interactive ? (e) => { e.preventDefault(); beginPaint(slot, catId); } : undefined}
+              onPointerEnter={interactive ? () => { if (paintingRef.current) onPaint(slot, paintValueRef.current); } : undefined}
               style={{
                 flex: 1,
                 minWidth: 0,
@@ -151,9 +151,9 @@ function HourStrip({ hours, height, interactive, onPaint, showLabels, brush }) {
       </div>
       {showLabels && (
         <div style={{ display: 'flex', marginTop: '0.35rem' }}>
-          {hours.map((_, hour) => (
-            <div key={hour} style={{ flex: 1, textAlign: 'center', fontSize: '11px', color: 'var(--text-muted)' }}>
-              {hour % 3 === 0 ? hourLabel(hour) : ''}
+          {hours.map((_, slot) => (
+            <div key={slot} style={{ flex: 1, textAlign: 'center', fontSize: '11px', color: 'var(--text-muted)' }}>
+              {slot % 6 === 0 ? slotLabel(slot) : ''}
             </div>
           ))}
         </div>
@@ -230,7 +230,7 @@ function TrendLineChart({ monthDate, getDay }) {
       const counts = {};
       for (const catId of hours) {
         if (!catId) continue;
-        counts[catId] = (counts[catId] || 0) + 1;
+        counts[catId] = (counts[catId] || 0) + 0.5;
       }
       for (const cat of ALL_CATEGORIES) byCat[cat.id].push(counts[cat.id] || 0);
     }
@@ -404,7 +404,7 @@ export default function TimeTracker() {
   const dayKey = dateKey(selectedDate);
   const dayHours = getDay(dayKey);
   const todayHours = getDay(dateKey(today));
-  const loggedToday = todayHours.filter(Boolean).length;
+  const loggedToday = todayHours.filter(Boolean).length * 0.5;
 
   const week = weekDays(selectedDate);
   const weekKeys = week.map(dateKey);
@@ -421,7 +421,7 @@ export default function TimeTracker() {
   const grid = monthGridDays(selectedDate);
 
   const statTiles = [
-    { label: 'Logged today', value: `${loggedToday}h`, subtitle: `of 24h`, icon: '⏱️' },
+    { label: 'Logged today', value: fmtHours(loggedToday), subtitle: `of 24h`, icon: '⏱️' },
     { label: 'This week', value: fmtHours(loggedWeek), subtitle: `of 168h`, icon: '📅' },
     { label: 'This month', value: fmtHours(loggedMonth), subtitle: MONTH_LABELS[selectedDate.getMonth()], icon: '🗓️' },
     { label: 'Top this month', value: topMonthCat && topMonthCat.h > 0 ? topMonthCat.c.label : '—', subtitle: topMonthCat && topMonthCat.h > 0 ? fmtHours(topMonthCat.h) : 'No data yet', icon: topMonthCat && topMonthCat.h > 0 ? topMonthCat.c.icon : '✨' },
@@ -449,7 +449,7 @@ export default function TimeTracker() {
       {/* Day view */}
       <Card
         title={formatLongDate(selectedDate)}
-        subtitle={`${dayHours.filter(Boolean).length}h logged`}
+        subtitle={`${fmtHours(dayHours.filter(Boolean).length * 0.5)} logged`}
         right={
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
             <NavButton label="Previous day" onClick={() => setSelectedDate((d) => addDays(d, -1))}>‹</NavButton>
@@ -513,7 +513,7 @@ export default function TimeTracker() {
                   <HourStrip hours={hours} height={22} interactive={false} showLabels={false} onPaint={() => {}} />
                 </div>
                 <div style={{ width: '36px', flexShrink: 0, textAlign: 'right', fontSize: '12px', color: 'var(--text-muted)' }}>
-                  {hours.filter(Boolean).length}h
+                  {fmtHours(hours.filter(Boolean).length * 0.5)}
                 </div>
               </div>
             );
