@@ -86,8 +86,8 @@ export default function JackWebsite() {
                     <p style={{ margin: '0 0 0.3rem 0' }}>BSc Mathematics with Finance</p>
                     <p style={{ margin: '0 0 0.3rem 0' }}>Morgan Stanley Future Generations Scholar</p>
                     <p style={{ margin: '0 0 0.3rem 0' }}>Founder of Eiliad</p>
-                    <p style={{ margin: '0 0 0.3rem 0' }}>100 Mile Ultramarathon Runner</p>
-                    <p style={{ margin: 0 }}>Actor and Model across Netflix, Tom Ford and major campaigns</p>
+                    <p style={{ margin: '0 0 0.3rem 0' }}>Actor and Model across Netflix, Tom Ford and major campaigns</p>
+                    <p style={{ margin: 0 }}>100 Mile Ultramarathon Runner</p>
                   </div>
                   <div style={{ display: 'flex', gap: '1rem', marginBottom: '2rem' }}>
                     <a href="mailto:liasjack1@gmail.com" style={{
