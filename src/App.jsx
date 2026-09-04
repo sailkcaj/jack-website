@@ -241,30 +241,36 @@ export default function JackWebsite() {
                   background: 'var(--surface-2)',
                   border: '0.5px solid var(--border)',
                   borderRadius: '12px',
-                  padding: '1rem 1.5rem',
+                  overflow: 'hidden',
                   display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
+                  height: '140px',
                 }}>
-                  <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
-                    <Photo
-                      src={achievementImageSrc(ach.title)}
-                      alt={ach.title}
-                      style={{
-                        width: '40px',
-                        height: '40px',
-                        borderRadius: '8px',
-                        objectFit: 'cover',
-                        border: '0.5px solid var(--border)',
-                        flexShrink: 0,
-                      }}
-                    />
-                    <div>
+                  <Photo
+                    src={achievementImageSrc(ach.title)}
+                    alt={ach.title}
+                    style={{
+                      width: '200px',
+                      height: '100%',
+                      objectFit: 'cover',
+                      flexShrink: 0,
+                      display: 'block',
+                    }}
+                  />
+                  <div style={{
+                    flex: 1,
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    padding: '1rem 1.5rem',
+                    gap: '1rem',
+                    minWidth: 0,
+                  }}>
+                    <div style={{ minWidth: 0 }}>
                       <p style={{ fontSize: '14px', fontWeight: 500, margin: '0 0 0.25rem 0' }}>{ach.title}</p>
                       <p style={{ fontSize: '13px', color: 'var(--text-secondary)', margin: 0 }}>{ach.description}</p>
                     </div>
+                    <span style={{ fontSize: '12px', color: 'var(--text-muted)', whiteSpace: 'nowrap', marginLeft: '1rem' }}>{ach.year}</span>
                   </div>
-                  <span style={{ fontSize: '12px', color: 'var(--text-muted)', whiteSpace: 'nowrap', marginLeft: '1rem' }}>{ach.year}</span>
                 </div>
               ))}
             </div>
