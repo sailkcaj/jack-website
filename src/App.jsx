@@ -120,7 +120,7 @@ export default function JackWebsite() {
                 </div>
               </div>
 
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', width: '200px', flexShrink: 0 }}>
+              <div className="hero-stats">
                 {stats.map((stat, i) => (
                   <div key={i} style={{
                     background: 'var(--surface-2)',
