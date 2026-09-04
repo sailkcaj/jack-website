@@ -154,6 +154,7 @@ export const achievements = [
   {
     title: 'J.P. Morgan Investment Banking Programme',
     description: 'Built a DCF model and analyzed capital structure dynamics for an M&A transaction',
+    year: '2026',
   },
   {
     title: 'BDO Voice of the Future Challenge',
