@@ -142,6 +142,11 @@ export const achievements = [
     year: '2025',
   },
   {
+    title: 'Google',
+    description: 'Strategies from Google',
+    year: '2025',
+  },
+  {
     title: '17th Place, Umushroom Investment Competition',
     description: '84% return over 2 months, 1,000+ teams',
     year: '2024',
