@@ -64,8 +64,7 @@ export default function JackWebsite() {
         {activeTab === 'overview' && (
           <>
             <section style={{ marginBottom: '4rem' }}>
-              <div style={{ display: 'flex', gap: '3rem', alignItems: 'flex-start', flexWrap: 'wrap' }}>
-              <div style={{ display: 'flex', gap: '2rem', alignItems: 'flex-start', flex: '1 1 480px', minWidth: 0 }}>
+              <div style={{ display: 'flex', gap: '2rem', alignItems: 'flex-start', marginBottom: '2rem' }}>
                 <Photo
                   src={HERO_IMAGE}
                   alt="Jack"
@@ -89,7 +88,7 @@ export default function JackWebsite() {
                     <p style={{ margin: '0 0 0.3rem 0' }}>Actor and Model across Netflix, Tom Ford and major campaigns</p>
                     <p style={{ margin: 0 }}>100 Mile Ultramarathon Runner</p>
                   </div>
-                  <div style={{ display: 'flex', gap: '1rem', marginBottom: '2rem' }}>
+                  <div style={{ display: 'flex', gap: '1rem' }}>
                     <a href="mailto:liasjack1@gmail.com" style={{
                       padding: '0.75rem 1.5rem',
                       background: 'var(--fill-accent)',
@@ -114,12 +113,13 @@ export default function JackWebsite() {
                       View CV
                     </a>
                   </div>
-                  <p style={{ fontSize: '15px', color: 'var(--text-secondary)', lineHeight: 1.7, maxWidth: '680px', margin: 0 }}>
-                    Hey I’m Jack Lias, I come from a rather large family of 4 sisters and I sit right in the middle, ever since a young boy I always had a goal, when I was a lot younger I had somewhat of a crisis as I did not fully understand why we existed the conclusion I came to is your here to make as much impact as possible, I wake up every morning knowing I have 16 hours to achieve as much as I can I know if I stop and have and hour scrolling my phone or talking about the latest gossip I will achieve less so I try and strive for a goal at all hours of the day, all be it some hours are more productive than others, however this is where one of my key super powers comes in making unproductive hours productive by just doing the least brain power demanding jobs then when I my brain is up for it doing hard thought provoking stuff. I get asked a lot why I’m like this and since the age of 12 I was raised by a single Mum my Grandma joined helping raise us a few years later but there was one thing I remember growing up and that was until I was about 15 I never saw my Mum go to bed earlier than me or wake up later than me there would be sometimes I would purposely wake up early like I’m talking 5am and then I’m thinking I’ve done it I’ve woken up earlier than my Mum then next thing you know I would here some clanging in the garage, I watched my Mum for my whole life get after it and I mean get after it and that is definitely where I get my skills to work for very long days but also keep it going for years, also being the only man in my house also played huge role in what drives me today sometimes I would have to step up be more than just a brother and sometimes I would have to remember I’m just a brother. I want to make as big of an impact as possible on this world and the people within and I will not stop and I love that, so I suppose, bring on the 16 hour days and let’s GET AFTER IT!
-                  </p>
                 </div>
               </div>
 
+              <div style={{ display: 'flex', gap: '3rem', alignItems: 'center', flexWrap: 'wrap' }}>
+                  <p style={{ fontSize: '15px', color: 'var(--text-secondary)', lineHeight: 1.7, maxWidth: '680px', flex: '1 1 480px', minWidth: 0, margin: 0 }}>
+                    Hey I’m Jack Lias, I come from a rather large family of 4 sisters and I sit right in the middle, ever since a young boy I always had a goal, when I was a lot younger I had somewhat of a crisis as I did not fully understand why we existed the conclusion I came to is your here to make as much impact as possible, I wake up every morning knowing I have 16 hours to achieve as much as I can I know if I stop and have and hour scrolling my phone or talking about the latest gossip I will achieve less so I try and strive for a goal at all hours of the day, all be it some hours are more productive than others, however this is where one of my key super powers comes in making unproductive hours productive by just doing the least brain power demanding jobs then when my brain is up for it doing hard thought provoking stuff. I get asked a lot why I’m like this and since the age of 12 I was raised by a single Mum my Grandma joined helping raise us a few years later but there was one thing I remember growing up and that was until I was about 15 I never saw my Mum go to bed earlier than me or wake up later than me there would be sometimes I would purposely wake up early like I’m talking 5am and then thinking I’ve done it I’ve woken up earlier than my Mum then next thing you know I would here some clanging in the garage, I watched my Mum for my whole life get after it and I mean get after it and that is definitely where I get my skills to work for very long days but also keep it going for years, also being the only man in my house also played huge role in what drives me today sometimes I would have to step up be more than just a brother and sometimes I would have to remember I’m just a brother. I want to make as big of an impact as possible on this world and the people who call it home and I will not stop and I love that, so I suppose, bring on the 16 hour days and let’s GET AFTER IT!
+                  </p>
               <div className="hero-stats">
                 {stats.map((stat, i) => (
                   <div key={i} style={{
