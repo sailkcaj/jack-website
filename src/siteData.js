@@ -51,13 +51,6 @@ export const roles = [
     tags: ['Real Estate'],
   },
   {
-    title: 'Strategy',
-    company: 'Google',
-    dates: '2025',
-    description: 'Strategies from Google',
-    tags: ['Strategy'],
-  },
-  {
     title: 'Engineering Intern',
     company: 'Plantforce Ltd',
     location: 'Bristol',
