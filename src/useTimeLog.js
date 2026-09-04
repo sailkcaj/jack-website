@@ -25,14 +25,23 @@ function loadLog() {
     const raw = window.localStorage.getItem(STORAGE_KEY);
     if (!raw) return {};
     const parsed = JSON.parse(raw);
+    if (!parsed || typeof parsed !== 'object') return {};
     const migrated = {};
     for (const key of Object.keys(parsed)) {
-      migrated[key] = expandDayTo48(parsed[key]);
+      // Migrate each day on its own — one malformed/unexpected entry
+      // shouldn't blank out every other day that parsed fine.
+      try {
+        migrated[key] = expandDayTo48(parsed[key]);
+      } catch {
+        migrated[key] = EMPTY_DAY();
+      }
     }
     return migrated;
   } catch {
-    // Private browsing / storage disabled / corrupt JSON — start fresh
-    // rather than crash the tab.
+    // Private browsing / storage disabled / corrupt JSON — start fresh in
+    // memory rather than crash the tab. Nothing on disk is touched here —
+    // see the isFirstLoad guard below — so a bad parse can never overwrite
+    // whatever's actually still sitting in localStorage.
     return {};
   }
 }
@@ -43,8 +52,20 @@ function loadLog() {
 export default function useTimeLog() {
   const [log, setLog] = useState(loadLog);
   const saveTimer = useRef(null);
+  const isFirstLoad = useRef(true);
 
   useEffect(() => {
+    // Skip the save that would otherwise fire immediately after this hook
+    // loads (and migrates) whatever was already in localStorage. Persisting
+    // only starts once something actually changes in this mount — a paint,
+    // an erase, a clear — so a bug in loading/migrating can never silently
+    // overwrite real stored data with an empty or partial result again.
+    // Worst case if loading ever goes wrong: storage just doesn't get
+    // upgraded until the next real edit, instead of being wiped.
+    if (isFirstLoad.current) {
+      isFirstLoad.current = false;
+      return undefined;
+    }
     clearTimeout(saveTimer.current);
     saveTimer.current = setTimeout(() => {
       try {
