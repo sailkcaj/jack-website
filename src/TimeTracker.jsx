@@ -1,10 +1,11 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import useTimeLog from './useTimeLog';
+import useTimeNotes from './useTimeNotes';
 import { TIME_CATEGORIES, OTHER_CATEGORY, ALL_CATEGORIES, categoryById } from './timeCategories';
 import {
   dateKey, addDays, startOfWeek, weekDays, startOfMonth, daysInMonth,
   monthGridDays, WEEKDAY_LABELS, MONTH_LABELS, formatLongDate, formatShortDate,
-  slotLabel,
+  slotLabel, boundaryLabel,
 } from './dateUtils';
 
 // Hairline ring around color fills — several of the categorical colors
@@ -95,12 +96,21 @@ function BrushPalette({ activeBrush, onPick }) {
   );
 }
 
+// A slot is covered by a note when it falls in that note's [start, end)
+// range. Returns the first matching note, if any — notes aren't expected to
+// overlap, but if they do, the earliest-added one wins for that slot.
+function noteForSlot(notes, slot) {
+  return notes.find((n) => slot >= n.start && slot < n.end);
+}
+
 // ---------------------------------------------------------------------------
 // One day as 48 equal half-hour segments. Interactive strips accept
 // click/drag painting with the active brush; read-only strips (week/month)
-// are just hover-labeled.
+// are just hover-labeled. `notes` (optional) are free-text comments tied to
+// a time range — a slot they cover gets a thin bottom marker and the note
+// text appended to its hover tooltip.
 // ---------------------------------------------------------------------------
-function HourStrip({ hours, height, interactive, onPaint, showLabels, brush }) {
+function HourStrip({ hours, height, interactive, onPaint, showLabels, brush, notes = [] }) {
   const paintingRef = useRef(false);
   const paintValueRef = useRef(null);
 
@@ -123,10 +133,15 @@ function HourStrip({ hours, height, interactive, onPaint, showLabels, brush }) {
       <div style={{ display: 'flex', gap: `${GAP}px`, height: `${height}px`, borderRadius: '8px', overflow: 'hidden' }}>
         {hours.map((catId, slot) => {
           const cat = categoryById(catId);
+          const note = notes.length ? noteForSlot(notes, slot) : undefined;
+          const baseTitle = `${slotLabel(slot)}–${slotLabel((slot + 1) % 48)}: ${cat ? cat.label : 'Not logged'}`;
+          const title = note
+            ? `${baseTitle}\nNote (${slotLabel(note.start)}–${boundaryLabel(note.end)}): ${note.text}`
+            : baseTitle;
           return (
             <div
               key={slot}
-              title={`${slotLabel(slot)}–${slotLabel((slot + 1) % 48)}: ${cat ? cat.label : 'Not logged'}`}
+              title={title}
               onPointerDown={interactive ? (e) => { e.preventDefault(); beginPaint(slot, catId); } : undefined}
               onPointerEnter={interactive ? () => { if (paintingRef.current) onPaint(slot, paintValueRef.current); } : undefined}
               style={{
@@ -134,6 +149,7 @@ function HourStrip({ hours, height, interactive, onPaint, showLabels, brush }) {
                 minWidth: 0,
                 background: cat ? cat.color : 'var(--surface-1)',
                 border: cat ? RING : '1px dashed var(--border)',
+                borderBottom: note ? '3px solid var(--border-accent)' : undefined,
                 boxSizing: 'border-box',
                 cursor: interactive ? 'pointer' : 'default',
                 display: 'flex',
@@ -397,14 +413,34 @@ function NavButton({ onClick, children, label }) {
 // ---------------------------------------------------------------------------
 export default function TimeTracker() {
   const { getDay, setHour, totalsForDays } = useTimeLog();
+  const { notesForDay, addNote, deleteNote } = useTimeNotes();
   const [selectedDate, setSelectedDate] = useState(todayDate);
   const [activeBrush, setActiveBrush] = useState('work');
+  const [noteStart, setNoteStart] = useState(0);
+  const [noteEnd, setNoteEnd] = useState(1);
+  const [noteText, setNoteText] = useState('');
 
   const today = todayDate();
   const dayKey = dateKey(selectedDate);
   const dayHours = getDay(dayKey);
+  const dayNotes = notesForDay(dayKey);
   const todayHours = getDay(dateKey(today));
   const loggedToday = todayHours.filter(Boolean).length * 0.5;
+
+  // Reset the note form whenever the selected day changes, so leftover text
+  // (or a stale time range) can't get attached to the wrong day.
+  useEffect(() => {
+    setNoteText('');
+    setNoteStart(0);
+    setNoteEnd(1);
+  }, [dayKey]);
+
+  const canAddNote = noteText.trim().length > 0 && noteEnd > noteStart;
+  const handleAddNote = () => {
+    if (!canAddNote) return;
+    addNote(dayKey, { start: noteStart, end: noteEnd, text: noteText.trim() });
+    setNoteText('');
+  };
 
   const week = weekDays(selectedDate);
   const weekKeys = week.map(dateKey);
@@ -475,8 +511,100 @@ export default function TimeTracker() {
           interactive
           showLabels
           brush={activeBrush}
+          notes={dayNotes}
           onPaint={(hour, value) => setHour(dayKey, hour, value)}
         />
+
+        {/* Notes — a free-text comment tied to a time range. Slots it
+            covers get a small marker on the strip above and the note text
+            appended to that slot's hover tooltip. */}
+        <div style={{ marginTop: '1.25rem', paddingTop: '1.25rem', borderTop: '0.5px solid var(--border)' }}>
+          <h4 style={{ fontSize: '13px', fontWeight: 500, margin: '0 0 0.75rem 0', color: 'var(--text-primary)' }}>Notes</h4>
+          <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', alignItems: 'center', marginBottom: '0.75rem' }}>
+            <select
+              value={noteStart}
+              onChange={(e) => {
+                const val = Number(e.target.value);
+                setNoteStart(val);
+                if (noteEnd <= val) setNoteEnd(val + 1);
+              }}
+              style={{
+                padding: '0.45rem 0.6rem', borderRadius: 'var(--radius)', border: '0.5px solid var(--border)',
+                fontSize: '13px', color: 'var(--text-primary)', background: 'var(--surface-1)',
+              }}
+            >
+              {Array.from({ length: 48 }, (_, i) => (
+                <option key={i} value={i}>{slotLabel(i)}</option>
+              ))}
+            </select>
+            <span style={{ fontSize: '13px', color: 'var(--text-muted)' }}>to</span>
+            <select
+              value={noteEnd}
+              onChange={(e) => setNoteEnd(Number(e.target.value))}
+              style={{
+                padding: '0.45rem 0.6rem', borderRadius: 'var(--radius)', border: '0.5px solid var(--border)',
+                fontSize: '13px', color: 'var(--text-primary)', background: 'var(--surface-1)',
+              }}
+            >
+              {Array.from({ length: 48 }, (_, i) => i + 1).filter((i) => i > noteStart).map((i) => (
+                <option key={i} value={i}>{boundaryLabel(i)}</option>
+              ))}
+            </select>
+            <input
+              type="text"
+              value={noteText}
+              onChange={(e) => setNoteText(e.target.value)}
+              onKeyDown={(e) => { if (e.key === 'Enter') handleAddNote(); }}
+              placeholder="What did you do?"
+              style={{
+                flex: '1 1 200px', minWidth: '160px', padding: '0.45rem 0.7rem', borderRadius: 'var(--radius)',
+                border: '0.5px solid var(--border)', fontSize: '13px', color: 'var(--text-primary)', background: 'var(--surface-1)',
+              }}
+            />
+            <button
+              onClick={handleAddNote}
+              disabled={!canAddNote}
+              style={{
+                padding: '0.45rem 0.9rem', borderRadius: 'var(--radius)', border: 'none',
+                background: canAddNote ? 'var(--fill-accent)' : 'var(--border-strong)',
+                color: 'var(--on-accent)', fontSize: '13px', fontWeight: 500,
+                cursor: canAddNote ? 'pointer' : 'not-allowed',
+              }}
+            >
+              Add
+            </button>
+          </div>
+
+          {dayNotes.length > 0 ? (
+            <div style={{ display: 'grid', gap: '0.5rem' }}>
+              {dayNotes.map((n) => (
+                <div key={n.id} style={{
+                  display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '0.75rem',
+                  background: 'var(--surface-1)', borderRadius: 'var(--radius)', padding: '0.5rem 0.75rem',
+                }}>
+                  <div style={{ fontSize: '13px', color: 'var(--text-primary)' }}>
+                    <span style={{ color: 'var(--text-secondary)', marginRight: '0.5rem' }}>
+                      {slotLabel(n.start)}–{boundaryLabel(n.end)}
+                    </span>
+                    {n.text}
+                  </div>
+                  <button
+                    onClick={() => deleteNote(dayKey, n.id)}
+                    aria-label="Delete note"
+                    title="Delete note"
+                    style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', fontSize: '13px', flexShrink: 0 }}
+                  >
+                    ✕
+                  </button>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p style={{ fontSize: '13px', color: 'var(--text-muted)', margin: 0 }}>
+              No notes yet for this day — add one above, then hover that stretch of the bar to see it.
+            </p>
+          )}
+        </div>
       </Card>
 
       {/* Weekly breakdown */}

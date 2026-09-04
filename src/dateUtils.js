@@ -95,3 +95,10 @@ export function slotLabel(slot) {
   const suffix = hour < 12 ? 'a' : 'p';
   return half ? `${h12}:30${suffix}` : `${h12}${suffix}`;
 }
+
+// Label for the clock time at the START of slot n, for n in 1-48 — the same
+// as slotLabel(n) except n=48, which wraps to the next day's 12a. Used for
+// the "to" side of a time range that can run right up to midnight.
+export function boundaryLabel(n) {
+  return n === 48 ? '12a' : slotLabel(n);
+}
