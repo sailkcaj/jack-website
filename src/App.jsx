@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import TravelGlobe from './TravelGlobe';
+import TimeTracker from './TimeTracker';
 import Photo from './Photo';
 import './globals.css';
 import {
@@ -50,6 +51,9 @@ export default function JackWebsite() {
             </button>
             <button onClick={() => setActiveTab('travel')} style={{ background: 'none', border: 'none', cursor: 'pointer', color: activeTab === 'travel' ? 'var(--text-primary)' : 'var(--text-secondary)', fontWeight: activeTab === 'travel' ? 500 : 400 }}>
               Travel
+            </button>
+            <button onClick={() => setActiveTab('time')} style={{ background: 'none', border: 'none', cursor: 'pointer', color: activeTab === 'time' ? 'var(--text-primary)' : 'var(--text-secondary)', fontWeight: activeTab === 'time' ? 500 : 400 }}>
+              Time
             </button>
           </nav>
         </div>
@@ -387,6 +391,9 @@ export default function JackWebsite() {
             <TravelGlobe />
           </section>
         )}
+
+        {/* Time Section */}
+        {activeTab === 'time' && <TimeTracker />}
       </main>
 
       {/* Footer */}
