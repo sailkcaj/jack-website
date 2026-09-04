@@ -117,6 +117,16 @@ export const projects = [
     tagline: 'Monte Carlo simulation for currency exposure analysis',
     tech: ['Python', 'Finance', 'Risk'],
   },
+  {
+    name: 'Fallowfield Flat Parties',
+    tagline: 'App for student events',
+    tech: ['Events', 'Mobile'],
+  },
+  {
+    name: 'Scloth',
+    tagline: 'App for creators and influencers to host their own merch lines, all in one place',
+    tech: ['E-commerce', 'Creator Economy'],
+  },
 ];
 
 export const mediaCredits = [

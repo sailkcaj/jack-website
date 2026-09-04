@@ -64,7 +64,8 @@ export default function JackWebsite() {
         {activeTab === 'overview' && (
           <>
             <section style={{ marginBottom: '4rem' }}>
-              <div style={{ display: 'flex', gap: '2rem', alignItems: 'flex-start', flexWrap: 'wrap' }}>
+              <div style={{ display: 'flex', gap: '3rem', alignItems: 'flex-start', flexWrap: 'wrap' }}>
+              <div style={{ display: 'flex', gap: '2rem', alignItems: 'flex-start', flex: '1 1 480px', minWidth: 0 }}>
                 <Photo
                   src={HERO_IMAGE}
                   alt="Jack"
@@ -85,6 +86,7 @@ export default function JackWebsite() {
                     <p style={{ margin: '0 0 0.3rem 0' }}>BSc Mathematics with Finance</p>
                     <p style={{ margin: '0 0 0.3rem 0' }}>Morgan Stanley Future Generations Scholar</p>
                     <p style={{ margin: '0 0 0.3rem 0' }}>Founder of Eiliad</p>
+                    <p style={{ margin: '0 0 0.3rem 0' }}>100 Mile Ultramarathon Runner</p>
                     <p style={{ margin: 0 }}>Actor and Model across Netflix, Tom Ford and major campaigns</p>
                   </div>
                   <div style={{ display: 'flex', gap: '1rem', marginBottom: '2rem' }}>
@@ -117,15 +119,8 @@ export default function JackWebsite() {
                   </p>
                 </div>
               </div>
-            </section>
 
-            {/* Stats Grid */}
-            <section style={{ marginBottom: '4rem' }}>
-              <div style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-                gap: '1rem',
-              }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', width: '200px', flexShrink: 0 }}>
                 {stats.map((stat, i) => (
                   <div key={i} style={{
                     background: 'var(--surface-2)',
@@ -140,6 +135,7 @@ export default function JackWebsite() {
                     {stat.subtitle && <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>{stat.subtitle}</div>}
                   </div>
                 ))}
+              </div>
               </div>
             </section>
 
