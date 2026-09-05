@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import useTimeLog from './useTimeLog';
 import useTimeNotes from './useTimeNotes';
+import useEditAuth from './useEditAuth';
 import { TIME_CATEGORIES, OTHER_CATEGORY, ALL_CATEGORIES, categoryById } from './timeCategories';
 import {
   dateKey, addDays, startOfWeek, weekDays, startOfMonth, daysInMonth,
@@ -14,6 +15,7 @@ import {
 // rather than blurring into the surface or its neighbor.
 const RING = '1px solid rgba(11,11,11,0.10)';
 const GAP = 2; // px — surface gap between touching half-hour segments
+const LEGACY_DISMISSED_KEY = 'sailkcaj-legacy-import-dismissed';
 
 function todayDate() {
   const d = new Date();
@@ -105,10 +107,11 @@ function noteForSlot(notes, slot) {
 
 // ---------------------------------------------------------------------------
 // One day as 48 equal half-hour segments. Interactive strips accept
-// click/drag painting with the active brush; read-only strips (week/month)
-// are just hover-labeled. `notes` (optional) are free-text comments tied to
-// a time range — a slot they cover gets a thin bottom marker and the note
-// text appended to its hover tooltip.
+// click/drag painting with the active brush; read-only strips (week/month,
+// or any strip shown to a non-editor visitor) are just hover-labeled.
+// `notes` (optional) are free-text comments tied to a time range — a slot
+// they cover gets a thin bottom marker and the note text appended to its
+// hover tooltip.
 // ---------------------------------------------------------------------------
 function HourStrip({ hours, height, interactive, onPaint, showLabels, brush, notes = [] }) {
   const paintingRef = useRef(false);
@@ -411,14 +414,148 @@ function NavButton({ onClick, children, label }) {
 }
 
 // ---------------------------------------------------------------------------
+// Sign-in control for the one editor account. Everyone else only ever sees
+// the compact "🔒 View only" button — reading the Time tab never requires
+// this. Firebase Auth keeps the session in this browser once signed in.
+// ---------------------------------------------------------------------------
+function EditAccess({ isEditor, editorEmail, authError, clearAuthError, signIn, signOutEditor }) {
+  const [open, setOpen] = useState(false);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+
+  if (isEditor) {
+    return (
+      <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', fontSize: '12px', color: 'var(--text-secondary)' }}>
+        <span>🔓 Editing as {editorEmail}</span>
+        <button
+          onClick={signOutEditor}
+          style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', color: 'var(--text-accent)', fontSize: '12px', textDecoration: 'underline' }}
+        >
+          Sign out
+        </button>
+      </div>
+    );
+  }
+
+  if (!open) {
+    return (
+      <button
+        onClick={() => setOpen(true)}
+        style={{
+          fontSize: '12px', padding: '0.35rem 0.75rem', borderRadius: 'var(--radius)',
+          border: '0.5px solid var(--border)', background: 'var(--surface-2)', cursor: 'pointer', color: 'var(--text-secondary)',
+          whiteSpace: 'nowrap',
+        }}
+      >
+        🔒 View only · Sign in to edit
+      </button>
+    );
+  }
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (submitting) return;
+    setSubmitting(true);
+    const ok = await signIn(email, password);
+    setSubmitting(false);
+    if (ok) {
+      setOpen(false);
+      setEmail('');
+      setPassword('');
+    }
+  };
+
+  return (
+    <form onSubmit={handleSubmit} style={{ display: 'flex', alignItems: 'flex-start', gap: '0.4rem', flexWrap: 'wrap', maxWidth: '420px' }}>
+      <input
+        type="email"
+        value={email}
+        onChange={(e) => { setEmail(e.target.value); clearAuthError(); }}
+        placeholder="Email"
+        autoComplete="username"
+        style={{ padding: '0.4rem 0.55rem', borderRadius: 'var(--radius)', border: '0.5px solid var(--border)', fontSize: '12px', width: '150px', color: 'var(--text-primary)', background: 'var(--surface-1)' }}
+      />
+      <input
+        type="password"
+        value={password}
+        onChange={(e) => { setPassword(e.target.value); clearAuthError(); }}
+        placeholder="Password"
+        autoComplete="current-password"
+        style={{ padding: '0.4rem 0.55rem', borderRadius: 'var(--radius)', border: '0.5px solid var(--border)', fontSize: '12px', width: '120px', color: 'var(--text-primary)', background: 'var(--surface-1)' }}
+      />
+      <button type="submit" disabled={submitting} style={{
+        padding: '0.4rem 0.8rem', borderRadius: 'var(--radius)', border: 'none',
+        background: 'var(--fill-accent)', color: 'var(--on-accent)', fontSize: '12px', fontWeight: 500,
+        cursor: submitting ? 'not-allowed' : 'pointer',
+      }}>
+        {submitting ? '…' : 'Sign in'}
+      </button>
+      <button type="button" onClick={() => { setOpen(false); setPassword(''); clearAuthError(); }} style={{
+        background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', fontSize: '12px', padding: '0.4rem 0',
+      }}>
+        Cancel
+      </button>
+      {authError && <span style={{ fontSize: '11px', color: '#c0392b', width: '100%' }}>{authError}</span>}
+    </form>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// One-time recovery banner for data logged back when the Time tab only
+// saved to this specific browser. Only ever shown to a signed-in editor,
+// and only while this browser actually has that old data sitting in it.
+// ---------------------------------------------------------------------------
+function LegacyImportBanner({ onImport, onDismiss }) {
+  return (
+    <div style={{
+      display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem', flexWrap: 'wrap',
+      background: 'var(--bg-accent)', border: '0.5px solid var(--border-accent)', borderRadius: 'var(--radius)',
+      padding: '0.75rem 1rem', marginBottom: '1.5rem', fontSize: '13px', color: 'var(--text-accent)',
+    }}>
+      <span>Found time data saved in this browser from before this was shared — import it in?</span>
+      <div style={{ display: 'flex', gap: '0.5rem', flexShrink: 0 }}>
+        <button onClick={onImport} style={{
+          padding: '0.35rem 0.8rem', borderRadius: 'var(--radius)', border: 'none',
+          background: 'var(--fill-accent)', color: 'var(--on-accent)', fontSize: '12px', fontWeight: 500, cursor: 'pointer',
+        }}>
+          Import
+        </button>
+        <button onClick={onDismiss} style={{
+          padding: '0.35rem 0.8rem', borderRadius: 'var(--radius)', border: '0.5px solid var(--border)',
+          background: 'var(--surface-2)', color: 'var(--text-secondary)', fontSize: '12px', cursor: 'pointer',
+        }}>
+          Dismiss
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
 export default function TimeTracker() {
-  const { getDay, setHour, totalsForDays } = useTimeLog();
-  const { notesForDay, addNote, deleteNote } = useTimeNotes();
+  const {
+    loaded: logLoaded, getDay, setHour, clearDay, totalsForDays,
+    importLegacyLocalData: importLegacyLog, hasLegacyLocalData: hasLegacyLog,
+  } = useTimeLog();
+  const {
+    loaded: notesLoaded, notesForDay, addNote, deleteNote,
+    importLegacyLocalData: importLegacyNotes, hasLegacyLocalData: hasLegacyNotes,
+  } = useTimeNotes();
+  const { isEditor, editorEmail, authError, clearAuthError, signIn, signOutEditor } = useEditAuth();
+
   const [selectedDate, setSelectedDate] = useState(todayDate);
   const [activeBrush, setActiveBrush] = useState('work');
   const [noteStart, setNoteStart] = useState(0);
   const [noteEnd, setNoteEnd] = useState(1);
   const [noteText, setNoteText] = useState('');
+  const [legacyDismissed, setLegacyDismissed] = useState(() => {
+    try {
+      return window.localStorage.getItem(LEGACY_DISMISSED_KEY) === '1';
+    } catch {
+      return false;
+    }
+  });
 
   const today = todayDate();
   const dayKey = dateKey(selectedDate);
@@ -435,11 +572,21 @@ export default function TimeTracker() {
     setNoteEnd(1);
   }, [dayKey]);
 
-  const canAddNote = noteText.trim().length > 0 && noteEnd > noteStart;
+  const canAddNote = isEditor && noteText.trim().length > 0 && noteEnd > noteStart;
   const handleAddNote = () => {
     if (!canAddNote) return;
     addNote(dayKey, { start: noteStart, end: noteEnd, text: noteText.trim() });
     setNoteText('');
+  };
+
+  const dismissLegacyBanner = () => {
+    try { window.localStorage.setItem(LEGACY_DISMISSED_KEY, '1'); } catch { /* ignore */ }
+    setLegacyDismissed(true);
+  };
+  const handleImportLegacy = () => {
+    importLegacyLog();
+    importLegacyNotes();
+    dismissLegacyBanner();
   };
 
   const week = weekDays(selectedDate);
@@ -463,12 +610,43 @@ export default function TimeTracker() {
     { label: 'Top this month', value: topMonthCat && topMonthCat.h > 0 ? topMonthCat.c.label : '—', subtitle: topMonthCat && topMonthCat.h > 0 ? fmtHours(topMonthCat.h) : 'No data yet', icon: topMonthCat && topMonthCat.h > 0 ? topMonthCat.c.icon : '✨' },
   ];
 
+  const loaded = logLoaded && notesLoaded;
+  const showLegacyBanner = isEditor && !legacyDismissed && (hasLegacyLog() || hasLegacyNotes());
+
+  // Never render the grids until the shared data has actually loaded —
+  // showing an empty-looking tab before we're sure is exactly what caused
+  // the scare on 2026-09-05, even though nothing was actually lost.
+  if (!loaded) {
+    return (
+      <section>
+        <h2 style={{ fontSize: '24px', fontWeight: 500, marginBottom: '0.5rem' }}>Time</h2>
+        <p style={{ fontSize: '14px', color: 'var(--text-secondary)', margin: 0 }}>Loading your time data…</p>
+      </section>
+    );
+  }
+
   return (
     <section>
-      <h2 style={{ fontSize: '24px', fontWeight: 500, marginBottom: '0.5rem' }}>Time</h2>
-      <p style={{ fontSize: '14px', color: 'var(--text-secondary)', margin: '0 0 2rem 0' }}>
-        Pick a category below, then click or drag across the hours to log your day.
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '1rem', flexWrap: 'wrap', marginBottom: '0.5rem' }}>
+        <h2 style={{ fontSize: '24px', fontWeight: 500, margin: 0 }}>Time</h2>
+        <EditAccess
+          isEditor={isEditor}
+          editorEmail={editorEmail}
+          authError={authError}
+          clearAuthError={clearAuthError}
+          signIn={signIn}
+          signOutEditor={signOutEditor}
+        />
+      </div>
+      <p style={{ fontSize: '14px', color: 'var(--text-secondary)', margin: '0 0 1.5rem 0' }}>
+        {isEditor
+          ? 'Pick a category below, then click or drag across the hours to log your day.'
+          : "Viewing my logged time — sign in above if you're me and want to edit it."}
       </p>
+
+      {showLegacyBanner && (
+        <LegacyImportBanner onImport={handleImportLegacy} onDismiss={dismissLegacyBanner} />
+      )}
 
       {/* Stat tiles */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: '1rem', marginBottom: '2rem' }}>
@@ -503,12 +681,16 @@ export default function TimeTracker() {
         }
       >
         <div style={{ marginBottom: '1.25rem' }}>
-          <BrushPalette activeBrush={activeBrush} onPick={setActiveBrush} />
+          {isEditor ? (
+            <BrushPalette activeBrush={activeBrush} onPick={setActiveBrush} />
+          ) : (
+            <p style={{ fontSize: '13px', color: 'var(--text-muted)', margin: 0 }}>Sign in above to log hours.</p>
+          )}
         </div>
         <HourStrip
           hours={dayHours}
           height={56}
-          interactive
+          interactive={isEditor}
           showLabels
           brush={activeBrush}
           notes={dayNotes}
@@ -517,63 +699,66 @@ export default function TimeTracker() {
 
         {/* Notes — a free-text comment tied to a time range. Slots it
             covers get a small marker on the strip above and the note text
-            appended to that slot's hover tooltip. */}
+            appended to that slot's hover tooltip. Visible to everyone;
+            adding/deleting is editor-only. */}
         <div style={{ marginTop: '1.25rem', paddingTop: '1.25rem', borderTop: '0.5px solid var(--border)' }}>
           <h4 style={{ fontSize: '13px', fontWeight: 500, margin: '0 0 0.75rem 0', color: 'var(--text-primary)' }}>Notes</h4>
-          <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', alignItems: 'center', marginBottom: '0.75rem' }}>
-            <select
-              value={noteStart}
-              onChange={(e) => {
-                const val = Number(e.target.value);
-                setNoteStart(val);
-                if (noteEnd <= val) setNoteEnd(val + 1);
-              }}
-              style={{
-                padding: '0.45rem 0.6rem', borderRadius: 'var(--radius)', border: '0.5px solid var(--border)',
-                fontSize: '13px', color: 'var(--text-primary)', background: 'var(--surface-1)',
-              }}
-            >
-              {Array.from({ length: 48 }, (_, i) => (
-                <option key={i} value={i}>{slotLabel(i)}</option>
-              ))}
-            </select>
-            <span style={{ fontSize: '13px', color: 'var(--text-muted)' }}>to</span>
-            <select
-              value={noteEnd}
-              onChange={(e) => setNoteEnd(Number(e.target.value))}
-              style={{
-                padding: '0.45rem 0.6rem', borderRadius: 'var(--radius)', border: '0.5px solid var(--border)',
-                fontSize: '13px', color: 'var(--text-primary)', background: 'var(--surface-1)',
-              }}
-            >
-              {Array.from({ length: 48 }, (_, i) => i + 1).filter((i) => i > noteStart).map((i) => (
-                <option key={i} value={i}>{boundaryLabel(i)}</option>
-              ))}
-            </select>
-            <input
-              type="text"
-              value={noteText}
-              onChange={(e) => setNoteText(e.target.value)}
-              onKeyDown={(e) => { if (e.key === 'Enter') handleAddNote(); }}
-              placeholder="What did you do?"
-              style={{
-                flex: '1 1 200px', minWidth: '160px', padding: '0.45rem 0.7rem', borderRadius: 'var(--radius)',
-                border: '0.5px solid var(--border)', fontSize: '13px', color: 'var(--text-primary)', background: 'var(--surface-1)',
-              }}
-            />
-            <button
-              onClick={handleAddNote}
-              disabled={!canAddNote}
-              style={{
-                padding: '0.45rem 0.9rem', borderRadius: 'var(--radius)', border: 'none',
-                background: canAddNote ? 'var(--fill-accent)' : 'var(--border-strong)',
-                color: 'var(--on-accent)', fontSize: '13px', fontWeight: 500,
-                cursor: canAddNote ? 'pointer' : 'not-allowed',
-              }}
-            >
-              Add
-            </button>
-          </div>
+          {isEditor && (
+            <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', alignItems: 'center', marginBottom: '0.75rem' }}>
+              <select
+                value={noteStart}
+                onChange={(e) => {
+                  const val = Number(e.target.value);
+                  setNoteStart(val);
+                  if (noteEnd <= val) setNoteEnd(val + 1);
+                }}
+                style={{
+                  padding: '0.45rem 0.6rem', borderRadius: 'var(--radius)', border: '0.5px solid var(--border)',
+                  fontSize: '13px', color: 'var(--text-primary)', background: 'var(--surface-1)',
+                }}
+              >
+                {Array.from({ length: 48 }, (_, i) => (
+                  <option key={i} value={i}>{slotLabel(i)}</option>
+                ))}
+              </select>
+              <span style={{ fontSize: '13px', color: 'var(--text-muted)' }}>to</span>
+              <select
+                value={noteEnd}
+                onChange={(e) => setNoteEnd(Number(e.target.value))}
+                style={{
+                  padding: '0.45rem 0.6rem', borderRadius: 'var(--radius)', border: '0.5px solid var(--border)',
+                  fontSize: '13px', color: 'var(--text-primary)', background: 'var(--surface-1)',
+                }}
+              >
+                {Array.from({ length: 48 }, (_, i) => i + 1).filter((i) => i > noteStart).map((i) => (
+                  <option key={i} value={i}>{boundaryLabel(i)}</option>
+                ))}
+              </select>
+              <input
+                type="text"
+                value={noteText}
+                onChange={(e) => setNoteText(e.target.value)}
+                onKeyDown={(e) => { if (e.key === 'Enter') handleAddNote(); }}
+                placeholder="What did you do?"
+                style={{
+                  flex: '1 1 200px', minWidth: '160px', padding: '0.45rem 0.7rem', borderRadius: 'var(--radius)',
+                  border: '0.5px solid var(--border)', fontSize: '13px', color: 'var(--text-primary)', background: 'var(--surface-1)',
+                }}
+              />
+              <button
+                onClick={handleAddNote}
+                disabled={!canAddNote}
+                style={{
+                  padding: '0.45rem 0.9rem', borderRadius: 'var(--radius)', border: 'none',
+                  background: canAddNote ? 'var(--fill-accent)' : 'var(--border-strong)',
+                  color: 'var(--on-accent)', fontSize: '13px', fontWeight: 500,
+                  cursor: canAddNote ? 'pointer' : 'not-allowed',
+                }}
+              >
+                Add
+              </button>
+            </div>
+          )}
 
           {dayNotes.length > 0 ? (
             <div style={{ display: 'grid', gap: '0.5rem' }}>
@@ -588,20 +773,22 @@ export default function TimeTracker() {
                     </span>
                     {n.text}
                   </div>
-                  <button
-                    onClick={() => deleteNote(dayKey, n.id)}
-                    aria-label="Delete note"
-                    title="Delete note"
-                    style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', fontSize: '13px', flexShrink: 0 }}
-                  >
-                    ✕
-                  </button>
+                  {isEditor && (
+                    <button
+                      onClick={() => deleteNote(dayKey, n.id)}
+                      aria-label="Delete note"
+                      title="Delete note"
+                      style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', fontSize: '13px', flexShrink: 0 }}
+                    >
+                      ✕
+                    </button>
+                  )}
                 </div>
               ))}
             </div>
           ) : (
             <p style={{ fontSize: '13px', color: 'var(--text-muted)', margin: 0 }}>
-              No notes yet for this day — add one above, then hover that stretch of the bar to see it.
+              No notes yet for this day{isEditor ? ' — add one above, then hover that stretch of the bar to see it.' : '.'}
             </p>
           )}
         </div>
@@ -712,7 +899,7 @@ export default function TimeTracker() {
       </Card>
 
       <p style={{ fontSize: '12px', color: 'var(--text-muted)', margin: 0 }}>
-        Saved in this browser only — there's no backend behind sailkcaj.com yet, so entries don't sync across devices and clearing browser data will clear them too.
+        Visible to anyone who visits sailkcaj.com, from any device or browser — only a signed-in editor can change it.
       </p>
     </section>
   );

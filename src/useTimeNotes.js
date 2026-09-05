@@ -1,90 +1,127 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { doc, onSnapshot, setDoc } from 'firebase/firestore';
+import { db, auth } from './firebase';
 
-const STORAGE_KEY = 'sailkcaj-time-notes-v1';
+const DOC_PATH = ['timeData', 'notes'];
+const LEGACY_STORAGE_KEY = 'sailkcaj-time-notes-v1';
 
 function makeId() {
   if (typeof crypto !== 'undefined' && crypto.randomUUID) return crypto.randomUUID();
   return `${Date.now()}-${Math.random().toString(36).slice(2)}`;
 }
 
-function loadNotes() {
+function sanitizeDays(rawDays) {
+  if (!rawDays || typeof rawDays !== 'object') return {};
+  const clean = {};
+  for (const key of Object.keys(rawDays)) {
+    const day = rawDays[key];
+    clean[key] = Array.isArray(day)
+      ? day.filter((n) => n && typeof n.start === 'number' && typeof n.end === 'number' && typeof n.text === 'string')
+      : [];
+  }
+  return clean;
+}
+
+// Reads whatever this specific browser saved back when the Time tab was
+// localStorage-only (pre-2026-09-05). Only ever consulted by an explicit
+// "import" action — never automatically.
+function readLegacyLocalNotes() {
   try {
-    const raw = window.localStorage.getItem(STORAGE_KEY);
-    if (!raw) return {};
+    const raw = window.localStorage.getItem(LEGACY_STORAGE_KEY);
+    if (!raw) return null;
     const parsed = JSON.parse(raw);
-    if (!parsed || typeof parsed !== 'object') return {};
-    const clean = {};
-    for (const key of Object.keys(parsed)) {
-      const day = parsed[key];
-      clean[key] = Array.isArray(day)
-        ? day.filter((n) => n && typeof n.start === 'number' && typeof n.end === 'number' && typeof n.text === 'string')
-        : [];
-    }
-    return clean;
+    if (!parsed || typeof parsed !== 'object' || Object.keys(parsed).length === 0) return null;
+    return sanitizeDays(parsed);
   } catch {
-    // Private browsing / storage disabled / corrupt JSON — start fresh in
-    // memory rather than crash the tab. Nothing on disk is touched here —
-    // see the isFirstLoad guard below — so a bad parse can never overwrite
-    // whatever's actually still sitting in localStorage.
-    return {};
+    return null;
   }
 }
 
-// Free-text notes tied to a time range within a day (e.g. "3:30p-5:30p:
-// fixed the login bug"), keyed by date. Persisted to this browser's
-// localStorage under its own key, entirely separate from the hour-log data
-// in useTimeLog — this feature can't touch or migrate that data at all.
-// Same no-backend caveat as the rest of the Time tab: notes live only on
-// whichever device/browser they were added in.
+// Free-text notes tied to a time range within a day, shared across every
+// browser/device via Firestore — same model and same safety pattern as
+// useTimeLog (a ref as the source of truth for "as of right now", writes
+// tied to explicit actions, nothing persisted before the first load
+// completes), kept in its own document so this feature can never touch or
+// migrate the hour-log data.
 export default function useTimeNotes() {
-  const [notes, setNotes] = useState(loadNotes);
-  const saveTimer = useRef(null);
-  const isFirstLoad = useRef(true);
+  const [notes, setNotes] = useState(null); // null = not loaded from Firestore yet
+  const notesRef = useRef({});
+  const hasLoadedOnce = useRef(false);
 
   useEffect(() => {
-    // Same safeguard as useTimeLog: never resave the just-loaded state on
-    // mount, only once something actually changes in this mount (an add or
-    // a delete) — so a loading problem here can never auto-overwrite real
-    // stored notes with an empty result.
-    if (isFirstLoad.current) {
-      isFirstLoad.current = false;
-      return undefined;
-    }
-    clearTimeout(saveTimer.current);
-    saveTimer.current = setTimeout(() => {
-      try {
-        window.localStorage.setItem(STORAGE_KEY, JSON.stringify(notes));
-      } catch {
-        // Storage full or unavailable — the in-memory state still reflects
-        // the user's edits for the rest of this session.
+    const ref = doc(db, ...DOC_PATH);
+    const unsubscribe = onSnapshot(
+      ref,
+      (snap) => {
+        const clean = sanitizeDays(snap.exists() ? snap.data().days : {});
+        notesRef.current = clean;
+        hasLoadedOnce.current = true;
+        setNotes(clean);
+      },
+      (err) => {
+        console.error('Time notes sync error:', err);
       }
-    }, 150);
-    return () => clearTimeout(saveTimer.current);
-  }, [notes]);
+    );
+    return unsubscribe;
+  }, []);
 
-  const notesForDay = useCallback((key) => notes[key] || [], [notes]);
+  const persist = useCallback((next) => {
+    if (!auth.currentUser) return;
+    if (!hasLoadedOnce.current) {
+      console.warn('Refusing to save time notes before the initial load completed.');
+      return;
+    }
+    setDoc(doc(db, ...DOC_PATH), { days: next }).catch((err) => {
+      console.error('Failed to save time notes:', err);
+    });
+  }, []);
+
+  const notesForDay = useCallback((key) => (notes && notes[key]) || [], [notes]);
 
   // start/end are half-hour slot indices (0-47 / 1-48), covering [start, end).
   const addNote = useCallback((key, { start, end, text }) => {
-    setNotes((prev) => {
-      const day = prev[key] ? [...prev[key]] : [];
-      day.push({ id: makeId(), start, end, text });
-      day.sort((a, b) => a.start - b.start);
-      return { ...prev, [key]: day };
-    });
-  }, []);
+    const base = notesRef.current;
+    const day = base[key] ? [...base[key]] : [];
+    day.push({ id: makeId(), start, end, text });
+    day.sort((a, b) => a.start - b.start);
+    const next = { ...base, [key]: day };
+    notesRef.current = next;
+    setNotes(next);
+    persist(next);
+  }, [persist]);
 
   const deleteNote = useCallback((key, id) => {
-    setNotes((prev) => {
-      const day = prev[key];
-      if (!day) return prev;
-      const next = day.filter((n) => n.id !== id);
-      const updated = { ...prev };
-      if (next.length) updated[key] = next;
-      else delete updated[key];
-      return updated;
-    });
-  }, []);
+    const base = notesRef.current;
+    const day = base[key];
+    if (!day) return;
+    const filtered = day.filter((n) => n.id !== id);
+    const next = { ...base };
+    if (filtered.length) next[key] = filtered; else delete next[key];
+    notesRef.current = next;
+    setNotes(next);
+    persist(next);
+  }, [persist]);
 
-  return { notesForDay, addNote, deleteNote };
+  // One-time recovery path, mirroring useTimeLog's importLegacyLocalData —
+  // local days only fill in dates the shared notes doc doesn't already have.
+  const importLegacyLocalData = useCallback(() => {
+    const legacy = readLegacyLocalNotes();
+    if (!legacy) return false;
+    const next = { ...legacy, ...notesRef.current };
+    notesRef.current = next;
+    setNotes(next);
+    persist(next);
+    return true;
+  }, [persist]);
+
+  const hasLegacyLocalData = useCallback(() => readLegacyLocalNotes() !== null, []);
+
+  return {
+    loaded: notes !== null,
+    notesForDay,
+    addNote,
+    deleteNote,
+    importLegacyLocalData,
+    hasLegacyLocalData,
+  };
 }

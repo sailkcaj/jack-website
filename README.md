@@ -63,7 +63,32 @@ A slot with no photo just doesn't render anything on the site — nothing looks 
 
 In the site's Render dashboard: **Settings** → **Custom Domains** → add `sailkcaj.com` (and `www.sailkcaj.com` if you want both). Render gives you a DNS record to add — either a CNAME (if using a subdomain/www) or an A record + ALIAS/ANAME (for the bare root domain). Add that record with whoever you bought the domain through, then wait for it to propagate (usually minutes, sometimes a few hours) and Render auto-issues the SSL certificate once it verifies.
 
+## Time tab storage
+
+The Time tab's data (hour log + notes) lives in Firestore, not this browser — anyone who visits sailkcaj.com sees the same data, from any device or browser, live. Reading is public; only a signed-in editor can change it (a "🔒 View only · Sign in to edit" control sits at the top of the tab). The site itself is still fully static — Firestore/Auth are called directly from the browser, so nothing changes about how Render hosts or builds this.
+
+### One-time setup (do this once, in the Firebase console)
+
+1. Go to [console.firebase.google.com](https://console.firebase.google.com/) and create a project (any name — e.g. "sailkcaj"). No credit card needed.
+2. **Build → Firestore Database → Create database** — any region, start in production mode.
+3. Firestore → **Rules** tab — paste in the contents of `firestore.rules` from this repo, then **Publish**.
+4. **Build → Authentication → Get started → Sign-in method → Email/Password** → enable it.
+5. Authentication → **Users → Add user** — pick any email + a real password (this becomes the one editor login; it doesn't need to be a real inbox, it's just a credential). Keep the password somewhere safe — it's never stored in this repo.
+6. Project settings (gear icon) → scroll to **Your apps** → **Add app → Web** (the `</>` icon) → register it (no need for Firebase Hosting) → copy the `firebaseConfig` object it shows you.
+7. Paste those values into `src/firebase.js` in place of the `REPLACE_WITH_YOUR_...` placeholders. These values are not secret — they identify the project, they don't grant access (the rule from step 3 does that) — so it's fine that they're visible in the site's JS.
+8. `git add . && git commit -m "Connect Time tab to Firebase" && git push` — Render redeploys automatically.
+
+Sign in with the email/password from step 5 on the live site to unlock editing on that device; it stays signed in there until you sign out.
+
+### Recovering data from before this was shared
+
+If a browser has old entries logged before this Firebase setup existed, open sailkcaj.com there, sign in as the editor, and a banner will offer to import that browser's saved data into the shared database — it only fills in dates that aren't already logged centrally, so it can't overwrite anything.
+
+### Testing locally against a fake project (optional)
+
+`npm run emulators` starts a local Firestore + Auth emulator (needs Java; no real Firebase project or login required — `.firebaserc` points it at a fake "demo-" project). With that running, `VITE_USE_FIREBASE_EMULATOR=true npm run dev` points the site at the emulator instead of production, so you can test changes without touching real data. The emulator UI is at `http://127.0.0.1:4000`.
+
 ## Notes
 
 - The globe pulls in Three.js, so the JS bundle is ~600KB gzipped — heavier than the rest of the site combined, but normal for this kind of library and not a problem for Render's static hosting.
-- No server, no database, no environment variables — this is a fully static site, so Render's free static site tier covers it completely.
+- The site itself is still fully static (no server, no environment variables) — Render's free static site tier covers it completely. The Time tab's shared data is the one exception, backed by Firestore directly from the browser (see above) rather than by anything Render runs.
