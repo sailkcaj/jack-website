@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import TravelGlobe from './TravelGlobe';
 import TimeTracker from './TimeTracker';
 import Photo from './Photo';
+import HeroCarousel from './HeroCarousel';
 import './globals.css';
 import {
   stats,
@@ -120,21 +121,24 @@ export default function JackWebsite() {
                   <p style={{ fontSize: '15px', color: 'var(--text-secondary)', lineHeight: 1.7, maxWidth: '680px', flex: '1 1 480px', minWidth: 0, margin: 0 }}>
                     Hey I’m Jack Lias, I come from a rather large family of 4 sisters and I sit right in the middle, ever since a young boy I always had a goal, when I was a lot younger I had somewhat of a crisis as I did not fully understand why we existed the conclusion I came to is your here to make as much impact as possible, I wake up every morning knowing I have 16 hours to achieve as much as I can I know if I stop and have and hour scrolling my phone or talking about the latest gossip I will achieve less so I try and strive for a goal at all hours of the day, all be it some hours are more productive than others, however this is where one of my key super powers comes in making unproductive hours productive by just doing the least brain power demanding jobs then when my brain is up for it doing hard thought provoking stuff. I get asked a lot why I’m like this and since the age of 12 I was raised by a single Mum my Grandma joined helping raise us a few years later but there was one thing I remember growing up and that was until I was about 15 I never saw my Mum go to bed earlier than me or wake up later than me there would be sometimes I would purposely wake up early like I’m talking 5am and then thinking I’ve done it I’ve woken up earlier than my Mum then next thing you know I would here some clanging in the garage, I watched my Mum for my whole life get after it and I mean get after it and that is definitely where I get my skills to work for very long days but also keep it going for years, also being the only man in my house also played huge role in what drives me today sometimes I would have to step up be more than just a brother and sometimes I would have to remember I’m just a brother. I want to make as big of an impact as possible on this world and the people who call it home and I will not stop and I love that, so I suppose, bring on the 16 hour days and let’s GET AFTER IT!
                   </p>
-              <div className="hero-stats">
-                {stats.map((stat, i) => (
-                  <div key={i} style={{
-                    background: 'var(--surface-2)',
-                    border: '0.5px solid var(--border)',
-                    borderRadius: '12px',
-                    padding: '1.5rem',
-                    textAlign: 'center',
-                  }}>
-                    <i className={`ti ${stat.icon}`} style={{ fontSize: '24px', color: 'var(--text-accent)', marginBottom: '0.5rem', display: 'block' }} aria-hidden="true"></i>
-                    <div style={{ fontSize: '28px', fontWeight: 500, margin: '0.5rem 0' }}>{stat.value}</div>
-                    <div style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>{stat.label}</div>
-                    {stat.subtitle && <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>{stat.subtitle}</div>}
-                  </div>
-                ))}
+              <div className="hero-right-col">
+                <HeroCarousel />
+                <div className="hero-stats">
+                  {stats.map((stat, i) => (
+                    <div key={i} style={{
+                      background: 'var(--surface-2)',
+                      border: '0.5px solid var(--border)',
+                      borderRadius: '12px',
+                      padding: '1.5rem',
+                      textAlign: 'center',
+                    }}>
+                      <i className={`ti ${stat.icon}`} style={{ fontSize: '24px', color: 'var(--text-accent)', marginBottom: '0.5rem', display: 'block' }} aria-hidden="true"></i>
+                      <div style={{ fontSize: '28px', fontWeight: 500, margin: '0.5rem 0' }}>{stat.value}</div>
+                      <div style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>{stat.label}</div>
+                      {stat.subtitle && <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>{stat.subtitle}</div>}
+                    </div>
+                  ))}
+                </div>
               </div>
               </div>
             </section>

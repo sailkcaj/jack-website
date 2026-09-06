@@ -12,7 +12,7 @@ import { fileURLToPath } from 'node:url';
 import { exec } from 'node:child_process';
 
 import { slugify } from '../../src/slugify.js';
-import { roles, projects, mediaCredits, achievements } from '../../src/siteData.js';
+import { roles, projects, mediaCredits, achievements, CAROUSEL_IMAGE_COUNT } from '../../src/siteData.js';
 import { countriesVisited } from '../../src/data/countries.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -32,6 +32,18 @@ function buildSlots() {
   const slots = [];
 
   slots.push({ id: 'hero', category: 'Profile', label: 'Hero photo', relPath: 'hero.jpg' });
+
+  // Overview hero carousel — N generic, interchangeable slots (not tied to
+  // a role/project/etc., unlike everything else below). relPath must match
+  // carouselImageSrc() in siteData.js exactly.
+  for (let i = 0; i < CAROUSEL_IMAGE_COUNT; i++) {
+    slots.push({
+      id: `carousel-${i + 1}`,
+      category: 'Carousel',
+      label: `Photo ${i + 1}`,
+      relPath: `carousel/${i + 1}.jpg`,
+    });
+  }
 
   for (const r of roles) {
     slots.push({

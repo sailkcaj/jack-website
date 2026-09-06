@@ -173,3 +173,11 @@ export const companyLogoSrc = (company) => `/images/companies/${slugify(company)
 export const projectImageSrc = (name) => `/images/projects/${slugify(name)}.jpg`;
 export const mediaImageSrc = (title) => `/images/media/${slugify(title)}.jpg`;
 export const achievementImageSrc = (title) => `/images/achievements/${slugify(title)}.jpg`;
+
+// The Overview hero carousel: unlike the slots above, these aren't tied to
+// a specific role/project/etc. — just N interchangeable photos that rotate.
+// carouselImageSrc(i) is 0-indexed to match array iteration in
+// HeroCarousel.jsx; files on disk are 1.jpg..10.jpg (1-indexed) since
+// that's what a human sees/fills in via the photo tool.
+export const CAROUSEL_IMAGE_COUNT = 10;
+export const carouselImageSrc = (index) => `/images/carousel/${index + 1}.jpg`;
