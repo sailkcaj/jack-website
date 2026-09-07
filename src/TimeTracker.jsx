@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import useTimeLog from './useTimeLog';
 import useTimeNotes from './useTimeNotes';
 import useEditAuth from './useEditAuth';
+import BirthdayCountdown from './BirthdayCountdown';
 import { TIME_CATEGORIES, OTHER_CATEGORY, ALL_CATEGORIES, categoryById } from './timeCategories';
 import {
   dateKey, addDays, startOfWeek, weekDays, startOfMonth, daysInMonth,
@@ -619,6 +620,7 @@ export default function TimeTracker() {
   if (!loaded) {
     return (
       <section>
+        <BirthdayCountdown />
         <h2 style={{ fontSize: '24px', fontWeight: 500, marginBottom: '0.5rem' }}>Time</h2>
         <p style={{ fontSize: '14px', color: 'var(--text-secondary)', margin: 0 }}>Loading your time data…</p>
       </section>
@@ -627,6 +629,7 @@ export default function TimeTracker() {
 
   return (
     <section>
+      <BirthdayCountdown />
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '1rem', flexWrap: 'wrap', marginBottom: '0.5rem' }}>
         <h2 style={{ fontSize: '24px', fontWeight: 500, margin: 0 }}>Time</h2>
         <EditAccess
