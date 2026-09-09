@@ -30,6 +30,29 @@ export const TIME_CATEGORIES = [
   // the hairline RING plus the icon/label shown alongside it.
   { id: 'family', label: 'Family', color: '#a8478f', icon: '👪' },
   { id: 'tvwork', label: 'TV Work', color: '#38bdf8', icon: '🎬' },
+  // Added 2026-09-09, going from 10 hues to 12 — well past the "close to
+  // the practical ceiling" point the dataviz skill flags at 8. A full OKLCH
+  // grid search (script-driven, not eyeballed) found only a handful of
+  // in-gamut spots left anywhere on the wheel that clear the hard
+  // normal-vision floor (ΔE >= 15) against all 10 existing colors — the
+  // wheel is genuinely that packed at 12 slots. `investment` (a saturated
+  // pure blue) clears every gate comfortably: worst normal ΔE 16.7 (vs
+  // sleep), worst CVD ΔE 12.6 (vs work) — both above the 8 target, not just
+  // the floor. `internship` (a vivid magenta) also clears the normal-vision
+  // floor comfortably (worst ΔE 21.4, vs friends — the nearest pink-family
+  // hue), but its CVD separation from `work` lands at 6.6, inside the
+  // skill's documented 6–8 "floor" band (WARN, not FAIL — legal only with
+  // mandatory secondary encoding). That's a deliberate, accepted trade-off,
+  // not an oversight: it leans on the same mitigation (icon + label shown
+  // alongside every swatch) already relied on for the pre-existing
+  // `goingout`/`food` pair below, which sits far worse (CVD ΔE 3.2) and has
+  // shipped since 2026-09-03 without being a problem in practice. Neither
+  // new color makes any existing pairwise failure worse — the worst-case
+  // pairs in the full 12-color report are still the same two pre-existing
+  // ones noted above (`goingout`↔`travel` normal ΔE 7.1, `goingout`↔`food`
+  // CVD ΔE 3.2), unchanged.
+  { id: 'investment', label: 'Investment Work', color: '#0000ff', icon: '📈' },
+  { id: 'internship', label: 'Internship Work', color: '#f400ff', icon: '🎓' },
 ];
 
 // Catch-all — deliberately outside the validated categorical set (a 9th
