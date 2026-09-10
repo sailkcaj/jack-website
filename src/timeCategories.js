@@ -53,6 +53,21 @@ export const TIME_CATEGORIES = [
   // CVD ΔE 3.2), unchanged.
   { id: 'investment', label: 'Investment Work', color: '#0000ff', icon: '📈' },
   { id: 'internship', label: 'Internship Work', color: '#f400ff', icon: '🎓' },
+  // Added 2026-09-09 (same day, second request) — 13 hues now. At this
+  // density the OKLCH grid search found ZERO spots left that clear the full
+  // CVD target (8) against all 12 existing colors; every option requires
+  // dropping into the documented 6–8 floor band somewhere (WARN, not FAIL —
+  // legal with the icon+label mitigation this app already applies
+  // everywhere). `business` (a warm brown/umber, a hue family nothing else
+  // here uses) was the best available: worst normal ΔE 20.2 (vs family —
+  // very comfortable, well clear of the hard 15 floor), worst CVD ΔE 7.4
+  // (vs food — inside the floor band, similar to `internship`'s situation
+  // above). Contrast vs the card surface is 7.68 — no relief needed.
+  // Confirmed the full 13-color report's worst-case pairs are still
+  // unchanged from the 12-color one (still the same pre-existing
+  // `goingout`↔`travel`/`goingout`↔`food` pair) — this addition doesn't
+  // worsen anything already there.
+  { id: 'business', label: 'Business Work', color: '#7c4600', icon: '🏢' },
 ];
 
 // Catch-all — deliberately outside the validated categorical set (a 9th

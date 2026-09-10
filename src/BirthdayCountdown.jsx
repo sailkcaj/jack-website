@@ -99,7 +99,13 @@ function CountdownCard({ title, computeTarget, reachedMessage }) {
         {countdown.reached ? reachedMessage : `Until ${formatLongDate(countdown.target)}`}
       </p>
       {!countdown.reached && (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '1rem' }}>
+        // Fixed 2 columns (not auto-fit) — with exactly 4 tiles, auto-fit's
+        // column count depends on the card's actual width and, at the widths
+        // these cards render at side by side, was landing on 3 columns: 3
+        // tiles across, then the 4th alone on its own row with two empty
+        // cells beside it. A flat 2x2 always divides evenly, so there's
+        // never a leftover cell no matter how wide the card is.
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1rem' }}>
           {tiles.map((t) => (
             <div key={t.label} style={TILE_STYLE}>
               <div style={{ fontSize: '20px', marginBottom: '0.35rem' }} aria-hidden="true">{t.icon}</div>
