@@ -68,6 +68,22 @@ export const TIME_CATEGORIES = [
   // `goingout`↔`travel`/`goingout`↔`food` pair) — this addition doesn't
   // worsen anything already there.
   { id: 'business', label: 'Business Work', color: '#7c4600', icon: '🏢' },
+  // Added 2026-10-05 — 14 hues now. Hue space is full: `internship` and
+  // `business` each had to settle for a CVD ΔE in the 6–8 floor band. A scan
+  // of the whole 8-bit sRGB cube shows the open space is on the lightness
+  // axis instead — nothing in the palette is darker than OKLab L ≈ 0.43
+  // (`sleep`), so a near-black is far from everything. `music` (#18181b, a
+  // cool near-black, L ≈ 0.21): worst normal ΔE 26.2 and worst protan/deutan
+  // CVD ΔE 22.3 (both vs `business`, its nearest neighbour) — clears the
+  // 15 / 8 gates by a wider margin than any earlier addition. Lightness
+  // differences survive colour-vision simulation, so there's no hue collision
+  // to lean on the icon for. Also 43.9 from `other` (so it can't pass for the
+  // neutral catch-all), 73.8 from an empty slot, and 17.7:1 against the card
+  // surface. Same maths as the entries above (OKLab ΔE ×100, Machado
+  // protan+deutan), re-derived and checked against their documented figures.
+  // The two pre-existing worst pairs (`goingout`↔`travel`, `goingout`↔`food`)
+  // are unchanged. A future dark colour would now need to clear `music` too.
+  { id: 'music', label: 'Music', color: '#18181b', icon: '🎹' },
 ];
 
 // Catch-all — deliberately outside the validated categorical set (a 9th
