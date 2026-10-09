@@ -84,6 +84,19 @@ export const TIME_CATEGORIES = [
   // The two pre-existing worst pairs (`goingout`↔`travel`, `goingout`↔`food`)
   // are unchanged. A future dark colour would now need to clear `music` too.
   { id: 'music', label: 'Music', color: '#18181b', icon: '🎹' },
+  // Added 2026-10-08 — 15 hues. A full sRGB-cube scan against the 14 shipped
+  // colours (incl. `music`) leaves nothing light or mid-tone that clears the
+  // 15 / 8 gates while still reading against the card (>= 3:1) and staying
+  // clear of `other` and the empty-slot grey — every survivor is dark (OKLab
+  // L < 0.45). `bizevents` takes a dark hue gap nothing else uses: a deep teal
+  // (#014a51, L ≈ 0.37, hue ≈ 206°) between the greens (`gym`, `food`) and
+  // `tvwork`'s sky blue. Worst normal ΔE 17.5 (vs `music`; `business` and
+  // `sleep` are 17.5 / 17.6), worst protan/deutan CVD ΔE 10.6 (vs `business`)
+  // — both clear the gates with room to spare. 28.1 from `other`, 57.8 from an
+  // empty slot, 10.0:1 against the card surface. Same maths as the entries
+  // above (OKLab ΔE ×100, Machado protan+deutan). The two pre-existing worst
+  // pairs (`goingout`↔`travel`, `goingout`↔`food`) are unchanged.
+  { id: 'bizevents', label: 'Business Events', color: '#014a51', icon: '🤝' },
 ];
 
 // Catch-all — deliberately outside the validated categorical set (a 9th
