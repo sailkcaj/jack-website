@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { doc, onSnapshot, setDoc } from 'firebase/firestore';
 import { db, auth } from './firebase';
+import { isOwner } from './ownerIdentity';
 
 const DOC_PATH = ['timeData', 'log'];
 const LEGACY_STORAGE_KEY = 'sailkcaj-time-log-v1';
@@ -54,8 +55,7 @@ function readLegacyLocalDays() {
 }
 
 // Half-hour time log, shared across every browser/device via Firestore —
-// anyone visiting sailkcaj.com sees the same data live; only a signed-in
-// editor (see useEditAuth) can change it.
+// mounted only for the signed-in owner, who can read and change it.
 //
 // Every write below is triggered directly by an explicit user action (paint
 // an hour, clear a day, import legacy data) using a ref as the source of
@@ -73,6 +73,7 @@ export default function useTimeLog() {
   const hasLoadedOnce = useRef(false);
 
   useEffect(() => {
+    if (!isOwner(auth.currentUser)) return;
     const ref = doc(db, ...DOC_PATH);
     const unsubscribe = onSnapshot(
       ref,
@@ -92,7 +93,7 @@ export default function useTimeLog() {
   }, []);
 
   const persist = useCallback((next) => {
-    if (!auth.currentUser) return; // UI shouldn't allow this anyway, but never write unauthenticated
+    if (!isOwner(auth.currentUser)) return; // UI shouldn't allow this anyway, but never write unauthenticated
     if (!hasLoadedOnce.current) {
       console.warn('Refusing to save time log before the initial load completed.');
       return;

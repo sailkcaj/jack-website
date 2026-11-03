@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { doc, onSnapshot, setDoc } from 'firebase/firestore';
 import { db, auth } from './firebase';
+import { isOwner } from './ownerIdentity';
 
 const DOC_PATH = ['timeData', 'notes'];
 const LEGACY_STORAGE_KEY = 'sailkcaj-time-notes-v1';
@@ -49,6 +50,7 @@ export default function useTimeNotes() {
   const hasLoadedOnce = useRef(false);
 
   useEffect(() => {
+    if (!isOwner(auth.currentUser)) return;
     const ref = doc(db, ...DOC_PATH);
     const unsubscribe = onSnapshot(
       ref,
@@ -66,7 +68,7 @@ export default function useTimeNotes() {
   }, []);
 
   const persist = useCallback((next) => {
-    if (!auth.currentUser) return;
+    if (!isOwner(auth.currentUser)) return;
     if (!hasLoadedOnce.current) {
       console.warn('Refusing to save time notes before the initial load completed.');
       return;

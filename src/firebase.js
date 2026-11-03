@@ -1,6 +1,6 @@
 import { initializeApp } from 'firebase/app';
 import { getAuth, connectAuthEmulator } from 'firebase/auth';
-import { getFirestore, connectFirestoreEmulator, enableIndexedDbPersistence } from 'firebase/firestore';
+import { getFirestore, connectFirestoreEmulator } from 'firebase/firestore';
 
 // These values identify the Firebase project the Time tab's data lives in —
 // they are NOT secret. Firestore Security Rules (firestore.rules) and
@@ -20,6 +20,8 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 
 export const auth = getAuth(app);
+// Use the default memory cache for private data, rather than persisting it
+// on disk in browsers that visit the site.
 export const db = getFirestore(app);
 
 // Local dev only — point at `npm run emulators` instead of the real project
@@ -30,10 +32,3 @@ if (import.meta.env.VITE_USE_FIREBASE_EMULATOR === 'true') {
   connectFirestoreEmulator(db, '127.0.0.1', 8080);
 }
 
-// Best-effort offline cache, so a browser that already loaded the Time tab
-// once can still show that last-synced snapshot without a network — a
-// flaky connection can't masquerade as the data disappearing. Safe to
-// ignore if it fails (private browsing, multiple tabs, unsupported
-// browser): the app still works, that tab just needs the network to see
-// live data.
-enableIndexedDbPersistence(db).catch(() => {});

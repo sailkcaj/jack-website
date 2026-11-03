@@ -65,20 +65,33 @@ In the site's Render dashboard: **Settings** → **Custom Domains** → add `sai
 
 ## Time tab storage
 
-The Time tab's data (hour log + notes) lives in Firestore, not this browser — anyone who visits sailkcaj.com sees the same data, from any device or browser, live. Reading is public; only a signed-in editor can change it (a "🔒 View only · Sign in to edit" control sits at the top of the tab). The site itself is still fully static — Firestore/Auth are called directly from the browser, so nothing changes about how Render hosts or builds this.
+Time is private to Jack's existing Firebase account (`liasjack1@gmail.com`).
+The Time tab opens a sign-in prompt for visitors. Its contents appear only
+after the owner signs in with the existing Firebase email/password login,
+which stays signed in across visits. Signing out immediately removes the
+private contents and returns to the sign-in prompt.
 
-### One-time setup (do this once, in the Firebase console)
+`src/ownerIdentity.js` and `firestore.rules` both restrict access to the owner's
+Firebase UID. Firestore rules protect reads **and** writes, including direct
+requests outside the website. Creating another Firebase account does not grant
+access. If the owner account is ever replaced, update the UID in both files.
 
-1. Go to [console.firebase.google.com](https://console.firebase.google.com/) and create a project (any name — e.g. "sailkcaj"). No credit card needed.
-2. **Build → Firestore Database → Create database** — any region, start in production mode.
-3. Firestore → **Rules** tab — paste in the contents of `firestore.rules` from this repo, then **Publish**.
-4. **Build → Authentication → Get started → Sign-in method → Email/Password** → enable it.
-5. Authentication → **Users → Add user** — pick any email + a real password (this becomes the one editor login; it doesn't need to be a real inbox, it's just a credential). Keep the password somewhere safe — it's never stored in this repo.
-6. Project settings (gear icon) → scroll to **Your apps** → **Add app → Web** (the `</>` icon) → register it (no need for Firebase Hosting) → copy the `firebaseConfig` object it shows you.
-7. Paste those values into `src/firebase.js` in place of the `REPLACE_WITH_YOUR_...` placeholders. These values are not secret — they identify the project, they don't grant access (the rule from step 3 does that) — so it's fine that they're visible in the site's JS.
-8. `git add . && git commit -m "Connect Time tab to Firebase" && git push` — Render redeploys automatically.
+The hour log and notes stay in Firestore and sync across the owner's devices.
+Private data uses memory caching. Data already downloaded by previous
+visitors cannot be recalled.
 
-Sign in with the email/password from step 5 on the live site to unlock editing on that device; it stays signed in there until you sign out.
+### Deploying privacy changes
+
+Render automatically deploys the frontend when changes are pushed to `main`.
+Database rules must also be deployed to the real Firebase project:
+
+```
+firebase deploy --only firestore:rules --project sailkcaj-c29a8
+```
+
+Alternatively, publish `firestore.rules` in the Firebase console's Firestore
+Rules tab. `.firebaserc` intentionally defaults to the demo project for local
+emulators; always specify the production project for a real rules deployment.
 
 ### Recovering data from before this was shared
 
@@ -91,4 +104,4 @@ If a browser has old entries logged before this Firebase setup existed, open sai
 ## Notes
 
 - The globe pulls in Three.js, so the JS bundle is ~600KB gzipped — heavier than the rest of the site combined, but normal for this kind of library and not a problem for Render's static hosting.
-- The site itself is still fully static (no server, no environment variables) — Render's free static site tier covers it completely. The Time tab's shared data is the one exception, backed by Firestore directly from the browser (see above) rather than by anything Render runs.
+- The site itself is still fully static (no server, no environment variables) — Render's free static site tier covers it completely. The Time tab's private data is the one exception, backed by Firestore directly from the browser (see above) rather than by anything Render runs.

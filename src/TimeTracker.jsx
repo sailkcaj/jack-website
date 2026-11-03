@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import useTimeLog from './useTimeLog';
 import useTimeNotes from './useTimeNotes';
-import useEditAuth from './useEditAuth';
+import OwnerAccess from './OwnerAccess';
 import BirthdayCountdown from './BirthdayCountdown';
 import { TIME_CATEGORIES, OTHER_CATEGORY, ALL_CATEGORIES, categoryById } from './timeCategories';
 import {
@@ -415,94 +415,6 @@ function NavButton({ onClick, children, label }) {
 }
 
 // ---------------------------------------------------------------------------
-// Sign-in control for the one editor account. Everyone else only ever sees
-// the compact "🔒 View only" button — reading the Time tab never requires
-// this. Firebase Auth keeps the session in this browser once signed in.
-// ---------------------------------------------------------------------------
-function EditAccess({ isEditor, editorEmail, authError, clearAuthError, signIn, signOutEditor }) {
-  const [open, setOpen] = useState(false);
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [submitting, setSubmitting] = useState(false);
-
-  if (isEditor) {
-    return (
-      <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', fontSize: '12px', color: 'var(--text-secondary)' }}>
-        <span>🔓 Editing as {editorEmail}</span>
-        <button
-          onClick={signOutEditor}
-          style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', color: 'var(--text-accent)', fontSize: '12px', textDecoration: 'underline' }}
-        >
-          Sign out
-        </button>
-      </div>
-    );
-  }
-
-  if (!open) {
-    return (
-      <button
-        onClick={() => setOpen(true)}
-        style={{
-          fontSize: '12px', padding: '0.35rem 0.75rem', borderRadius: 'var(--radius)',
-          border: '0.5px solid var(--border)', background: 'var(--surface-2)', cursor: 'pointer', color: 'var(--text-secondary)',
-          whiteSpace: 'nowrap',
-        }}
-      >
-        🔒 View only · Sign in to edit
-      </button>
-    );
-  }
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (submitting) return;
-    setSubmitting(true);
-    const ok = await signIn(email, password);
-    setSubmitting(false);
-    if (ok) {
-      setOpen(false);
-      setEmail('');
-      setPassword('');
-    }
-  };
-
-  return (
-    <form onSubmit={handleSubmit} style={{ display: 'flex', alignItems: 'flex-start', gap: '0.4rem', flexWrap: 'wrap', maxWidth: '420px' }}>
-      <input
-        type="email"
-        value={email}
-        onChange={(e) => { setEmail(e.target.value); clearAuthError(); }}
-        placeholder="Email"
-        autoComplete="username"
-        style={{ padding: '0.4rem 0.55rem', borderRadius: 'var(--radius)', border: '0.5px solid var(--border)', fontSize: '12px', width: '150px', color: 'var(--text-primary)', background: 'var(--surface-1)' }}
-      />
-      <input
-        type="password"
-        value={password}
-        onChange={(e) => { setPassword(e.target.value); clearAuthError(); }}
-        placeholder="Password"
-        autoComplete="current-password"
-        style={{ padding: '0.4rem 0.55rem', borderRadius: 'var(--radius)', border: '0.5px solid var(--border)', fontSize: '12px', width: '120px', color: 'var(--text-primary)', background: 'var(--surface-1)' }}
-      />
-      <button type="submit" disabled={submitting} style={{
-        padding: '0.4rem 0.8rem', borderRadius: 'var(--radius)', border: 'none',
-        background: 'var(--fill-accent)', color: 'var(--on-accent)', fontSize: '12px', fontWeight: 500,
-        cursor: submitting ? 'not-allowed' : 'pointer',
-      }}>
-        {submitting ? '…' : 'Sign in'}
-      </button>
-      <button type="button" onClick={() => { setOpen(false); setPassword(''); clearAuthError(); }} style={{
-        background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', fontSize: '12px', padding: '0.4rem 0',
-      }}>
-        Cancel
-      </button>
-      {authError && <span style={{ fontSize: '11px', color: '#c0392b', width: '100%' }}>{authError}</span>}
-    </form>
-  );
-}
-
-// ---------------------------------------------------------------------------
 // One-time recovery banner for data logged back when the Time tab only
 // saved to this specific browser. Only ever shown to a signed-in editor,
 // and only while this browser actually has that old data sitting in it.
@@ -534,7 +446,7 @@ function LegacyImportBanner({ onImport, onDismiss }) {
 }
 
 // ---------------------------------------------------------------------------
-export default function TimeTracker() {
+export default function TimeTracker({ ownerAuth }) {
   const {
     loaded: logLoaded, getDay, setHour, clearDay, totalsForDays,
     importLegacyLocalData: importLegacyLog, hasLegacyLocalData: hasLegacyLog,
@@ -543,7 +455,7 @@ export default function TimeTracker() {
     loaded: notesLoaded, notesForDay, addNote, deleteNote,
     importLegacyLocalData: importLegacyNotes, hasLegacyLocalData: hasLegacyNotes,
   } = useTimeNotes();
-  const { isEditor, editorEmail, authError, clearAuthError, signIn, signOutEditor } = useEditAuth();
+  const { isEditor } = ownerAuth;
 
   const [selectedDate, setSelectedDate] = useState(todayDate);
   const [activeBrush, setActiveBrush] = useState('work');
@@ -632,19 +544,10 @@ export default function TimeTracker() {
       <BirthdayCountdown />
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '1rem', flexWrap: 'wrap', marginBottom: '0.5rem' }}>
         <h2 style={{ fontSize: '24px', fontWeight: 500, margin: 0 }}>Time</h2>
-        <EditAccess
-          isEditor={isEditor}
-          editorEmail={editorEmail}
-          authError={authError}
-          clearAuthError={clearAuthError}
-          signIn={signIn}
-          signOutEditor={signOutEditor}
-        />
+        <OwnerAccess {...ownerAuth} />
       </div>
       <p style={{ fontSize: '14px', color: 'var(--text-secondary)', margin: '0 0 1.5rem 0' }}>
-        {isEditor
-          ? 'Pick a category below, then click or drag across the hours to log your day.'
-          : "Viewing my logged time — sign in above if you're me and want to edit it."}
+        Pick a category below, then click or drag across the hours to log your day.
       </p>
 
       {showLegacyBanner && (

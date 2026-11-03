@@ -1,12 +1,10 @@
 import { useCallback, useEffect, useState } from 'react';
 import { onAuthStateChanged, signInWithEmailAndPassword, signOut } from 'firebase/auth';
 import { auth } from './firebase';
+import { isOwner } from './ownerIdentity';
 
-// Gate for who can edit the Time tab. Reading is always public (see
-// useTimeLog/useTimeNotes) — this only controls the paint/note/erase
-// controls in TimeTracker.jsx. Firebase Auth persists the signed-in session
-// in this browser on its own, so signing in once on a device keeps editing
-// unlocked there until an explicit sign-out.
+// Only the owner can open Time. Firestore enforces the same UID for reads
+// and writes. Auth persists the owner's sign-in across visits on a device.
 export default function useEditAuth() {
   const [user, setUser] = useState(undefined); // undefined = not yet known
   const [authError, setAuthError] = useState('');
@@ -16,7 +14,12 @@ export default function useEditAuth() {
   const signIn = useCallback(async (email, password) => {
     setAuthError('');
     try {
-      await signInWithEmailAndPassword(auth, email.trim(), password);
+      const credential = await signInWithEmailAndPassword(auth, email.trim(), password);
+      if (!isOwner(credential.user)) {
+        await signOut(auth);
+        setAuthError('This account does not have owner access.');
+        return false;
+      }
       return true;
     } catch {
       setAuthError('Incorrect email or password.');
@@ -27,7 +30,7 @@ export default function useEditAuth() {
   const signOutEditor = useCallback(() => signOut(auth), []);
 
   return {
-    isEditor: !!user,
+    isEditor: isOwner(user),
     authReady: user !== undefined,
     editorEmail: user ? user.email : null,
     authError,

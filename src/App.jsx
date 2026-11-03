@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import TravelGlobe from './TravelGlobe';
 import TimeTracker from './TimeTracker';
+import OwnerAccess from './OwnerAccess';
+import useEditAuth from './useEditAuth';
 import Photo from './Photo';
 import HeroCarousel from './HeroCarousel';
 import './globals.css';
@@ -20,6 +22,8 @@ import {
 
 export default function JackWebsite() {
   const [activeTab, setActiveTab] = useState('overview');
+  const ownerAuth = useEditAuth();
+  const { isEditor } = ownerAuth;
 
   return (
     <div style={{ background: 'var(--surface-0)', minHeight: '100vh', padding: '0' }}>
@@ -399,7 +403,16 @@ export default function JackWebsite() {
         )}
 
         {/* Time Section */}
-        {activeTab === 'time' && <TimeTracker />}
+        {activeTab === 'time' && (isEditor
+          ? <TimeTracker ownerAuth={ownerAuth} />
+          : <section>
+              <h2 style={{ fontSize: '24px', fontWeight: 500, marginBottom: '0.5rem' }}>Time</h2>
+              <p style={{ fontSize: '14px', color: 'var(--text-secondary)', margin: '0 0 1.5rem' }}>
+                {ownerAuth.authReady ? 'This page is private. Sign in to view it.' : 'Checking sign-in…'}
+              </p>
+              <OwnerAccess {...ownerAuth} initiallyOpen />
+            </section>
+        )}
       </main>
 
       {/* Footer */}
