@@ -605,7 +605,7 @@ export default function TimeTracker({ ownerAuth }) {
 
         {/* Notes — a free-text comment tied to a time range. Slots it
             covers get a small marker on the strip above and the note text
-            appended to that slot's hover tooltip. Visible to everyone;
+            appended to that slot's hover tooltip. Private to the owner;
             adding/deleting is editor-only. */}
         <div style={{ marginTop: '1.25rem', paddingTop: '1.25rem', borderTop: '0.5px solid var(--border)' }}>
           <h4 style={{ fontSize: '13px', fontWeight: 500, margin: '0 0 0.75rem 0', color: 'var(--text-primary)' }}>Notes</h4>
@@ -805,7 +805,7 @@ export default function TimeTracker({ ownerAuth }) {
       </Card>
 
       <p style={{ fontSize: '12px', color: 'var(--text-muted)', margin: 0 }}>
-        Visible to anyone who visits sailkcaj.com, from any device or browser — only a signed-in editor can change it.
+        Private to you. Sign in on any device to view and edit your time.
       </p>
     </section>
   );
